@@ -4,7 +4,7 @@ pimouss
 >file based static HTML pages generator
 
 ## Downlod
-
+      [Last Version](https://github.com/mikrolax/pimouss/archive/master.zip)
 
 ## Install
       python setup.py install
