@@ -7,7 +7,6 @@ pimouss
 
 
 ## Install
-in a terminal:     
       python setup.py install
       
 ## Use
