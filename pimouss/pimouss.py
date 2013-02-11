@@ -43,15 +43,17 @@ from external import markdown2
 tpl_page='''
   <html>
     <head>
-      <title> $title  </title>
+      <title>  </title>
       <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
     </head>    
     <body>
      <div class="container"> 
       $content
 
+      <!-- 
       <hr>
-      <p>&copy; sebastien stang - 2013</p>
+      <p>&copy; sebastien stang - 2013</p> 
+      -->
             
      </div>
       <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
@@ -100,7 +102,7 @@ def _module_path():
     return os.path.dirname(os.path.abspath(__file__))
     
 
-def generate_page(template,articles,pagename='',title=None,style=None):
+def generate_page(template,articles,pagename='',title=None,style=None): # don't use title now...
   if title == None:
     title='Pimouss'
   html=''' '''
@@ -144,8 +146,8 @@ def generate_page(template,articles,pagename='',title=None,style=None):
     html+=html_article #.encode('utf-8') 
              
   page=string.Template(template) 
-  html_page=page.substitute(title=title,content=html.encode('utf-8'))
-  #html_page=page.safe_substitute(content=html)
+  #html_page=page.substitute(title=title,content=html.encode('utf-8'))
+  html_page=page.substitute(content=html.encode('utf-8'))
   return html_page
   
   
@@ -434,7 +436,8 @@ class Generator(object):
       else:
         #else if 
         page_tpl=tpl_page
-      html_page=generate_page(page_tpl,self.pages[page],pagename=page,title=page,style=self.style)
+      #html_page=generate_page(page_tpl,self.pages[page],pagename=page,title=page,style=self.style) 
+      html_page=generate_page(page_tpl,self.pages[page],pagename=page,title=None,style=self.style)
       with open(os.path.join(self.outpath,page+'.html'),'w') as f:
         f.write(html_page)
     copyfiles(path,self.outpath)
@@ -487,7 +490,7 @@ def pimoussCli():
   try:
     import argparse
   except:
-    import external.argparse  
+    import external.argparse  as argparse  
   parser = argparse.ArgumentParser(description='pimouss v.%s:  static website generator' %__version__,epilog='Copyright Sebastien Stang') #add version? 
   #parser.add_argument("-v", "--version",action='store_true',default=False,help="display current version")
   parser.add_argument("-i", "--interactive",type=bool,default=False,help="Simulate an interactive shell")
