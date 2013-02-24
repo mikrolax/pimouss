@@ -141,10 +141,9 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
       logging.debug('generate_page() :: making tabs : %s' %(tabsnames))   
       tmp=make_tabs(tabs,tabsnames)
       html+=tmp.decode('utf-8')
-  else:
-    
+  else:    
     html+=html_article #.encode('utf-8') 
-             
+
   page=string.Template(template) 
   #html_page=page.substitute(title=title,content=html.encode('utf-8'))
   html_page=page.substitute(content=html.encode('utf-8'))
