@@ -10,6 +10,8 @@ pimouss
       python setup.py install
       
 ## Use
+
+#### Command-line
       usage: pimouss.py [-h] [-r] [-b BUILD_PATH] [-g GENERATE_PATH] input_path
 
       pimouss v.alpha: static website generator
@@ -22,6 +24,13 @@ pimouss
         -r, --recursive                                 recursively look for markdown file
         -b BUILD_PATH, --build_path BUILD_PATH          build path
         -g GENERATE_PATH, --generate_path GENERATE_PATH generate path
+
+#### Graphical User Interface
+> You must have pyside (Qt python binding) installed on your system. Try `pip install pyside`
+
+      pimouss-gui.py
+      
+      
 
 ## License
 
