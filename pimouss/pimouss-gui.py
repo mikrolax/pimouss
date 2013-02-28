@@ -77,7 +77,7 @@ class MainWindow(QtGui.QMainWindow):
       
 def main():
   app = QtGui.QApplication(sys.argv)
-  pixmap = QtGui.QPixmap("daria.png")
+  pixmap = QtGui.QPixmap("splash.png")
   splash = QtGui.QSplashScreen(pixmap)
   splash.show()
   splash.showMessage("Load pimouss...")
