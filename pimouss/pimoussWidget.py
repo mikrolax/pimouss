@@ -38,10 +38,16 @@ class PimoussThread(QtCore.QThread):
       self.recursive=recursive
       
     def run(self):
-      cmd='pimouss.py -b %s -g %s %s' %(self.buildPath,self.generatePath,self.inputPath)
-      import subprocess
-      message=subprocess.call(cmd,shell=True)
-      self.emit(QtCore.SIGNAL("pimoussExecEnd(PyObject)"), str(message))    #should reboot board if timeout exceded...
+      #if self.buildPath == None:
+      self.buildPath=self.inputPath
+      if self.generatePath == None:
+        self.generatePath=os.path.join(self.inputPath,'_html')
+
+      import pimouss
+      p=pimouss.Pimouss()
+      res=p.process(self.inputPath,buildpath=self.buildPath,outpath=self.generatePath) 
+      message='return %s ' %res
+      self.emit(QtCore.SIGNAL("pimoussExecEnd(PyObject)"), str(message))
 
 
 #def get_paramas_from_cfg(filename,section_name):

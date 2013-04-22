@@ -27,66 +27,109 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 
 import sys
 import os
+import logging
+logfile='pimouss.log'
 
 try:
   from PySide import QtCore, QtGui,QtWebKit
 except:
   raise NameError('Pyside is no installed on your system. Check http://qt-project.org/wiki/PySide for more')
 
-import pimouss
-from desktop.pimoussWidget import PimoussWidget as PimoussWidget 
-from desktop.PimoussTabbedWidget import PimoussTabbedWidget as PimoussTabbedWidget
+#import pimouss
+#from desktop.pimoussWidget import PimoussWidget as PimoussWidget 
+from pimoussWidget import PimoussWidget
+from desktop.AppMainWindow import MainWindow as AppMainWindow 
+#from desktop.PimoussTabbedWidget import PimoussTabbedWidget as PimoussTabbedWidget
 
-          
+'''          
 class MainWindow(QtGui.QMainWindow):
   def __init__(self):
     super(MainWindow, self).__init__()
     self.initUI()
 
   def initUI(self):   
-    self.mainWidget=PimoussTabbedWidget()
+    #self.mainWidget=PimoussTabbedWidget()
+    self.mainWidget=PimoussWidget()
+    self.appWindow=AppMainWindow(self.mainWidget)
     self.statusBar().showMessage("using pimouss v. %s" %(pimouss.__version__))
-    self.setCentralWidget(self.mainWidget)
-    self.setGeometry(300, 300, 350, 250)
+    #self.setCentralWidget(self.appWindow)
+    #self.setGeometry(300, 300, 350, 250)
     self.setWindowTitle('Pimouss')    
-    self.show()
+    #self.mainWidget.show()
+    self.appWindow.show()
+
+#def main():
+#  app = QtGui.QApplication(sys.argv)
+#  pixmap = QtGui.QPixmap("splash.png")
+#  splash = QtGui.QSplashScreen(pixmap)
+#  splash.show()
+#  splash.showMessage("Load pimouss...")
+#  app.processEvents()
+#  m=MainWindow()
+#  m.show()
+#  splash.finish(m)
+#  sys.exit(app.exec_())
+'''   
+title='pimouss'
+class MainWindow(AppMainWindow):
+  def __init__(self,parent=None):
+    logging.debug('gui.MainWindow:: init %s' %parent)
+    self.appWidget=PimoussWidget()
+    super(MainWindow, self).__init__(self.appWidget,self)
+    self.parent=parent
+    self.init()
+  
+  def init(self):  
+    logging.debug('gui.MainWindow::init')  
+    self.project_ext=['*.md']
+    self.title=title
+    self.init_ui()
+    self.setLog(logfile)
+    self.setWindowTitle(title)
+    #self.connect(self.appWidget.thread, QtCore.SIGNAL('onStartProcess(PyObject)'), self.onStartProcess)    
+    #self.connect(self.appWidget.thread, QtCore.SIGNAL('onStopProcess(PyObject)'), self.onEndProcess)    
+ 
+
+  def setProject(self, _name, path):
+    logging.info('gui.MainWindow::setProject %s : %s' %(_name,path))
+    self.setFileView(os.path.join(path))
+    #setLog() # if on a per project config
     
-    fileMenu = self.menuBar().addMenu("&Pimouss")
-    self.addAct=QtGui.QAction("&Add pimouss", self,shortcut=QtGui.QKeySequence.New,statusTip="Add a new folder to process", 
-                triggered=self.add)
-    self.saveAct=QtGui.QAction("&Save This Project", self,shortcut=QtGui.QKeySequence.New,statusTip="Save config in file", 
-                triggered=self.save)
-    self.buildAct=QtGui.QAction("&Build all", self,shortcut=QtGui.QKeySequence.New,statusTip="build project", 
-                triggered=self.build)    
-    fileMenu.addAction(self.addAct)
-    fileMenu.addAction(self.saveAct)
-    fileMenu.addAction(self.buildAct)
-        
-  def add(self):
-    self.mainWidget.dialog_add()
+    #specific widget things here
 
-  def open_(self):
-    self.mainWidget.open_()
+    self.appWidget.pimoussInput=path
+    self.appWidget.pimoussOutput=os.path.join(path,'_html')
+    self.appWidget.updateFolderGroupBox()
+    if os.path.exist(os.path.join(path,'_html','index.html')):
+      self.appWidget.setHTMLView(os.path.join(path,'_html','index.html'))            
 
-  def save(self):
-    self.mainWidget.save()
+  def onStartProcess(self,msg):
+    logging.debug('gui.MainWindow::onStartProcess: %s' %msg)
+    self.startProcessTimer()
+    self.statusBar().showMessage(msg)
+    
+  def onEndProcess(self,msg):
+    logging.debug('gui.MainWindow::onEndProcess: %s' %msg)
+    self.stopProcessTimer()
+    self.statusBar().showMessage(msg)
 
-  def build(self):
-    self.mainWidget.build()     
 
-      
-def main():
+def main(): 
+
+  formatter='%(asctime)s::%(levelname)s::%(message)s'
+  print logfile
+  logging.basicConfig(filename=os.path.abspath(logfile), filemode='w',format=formatter, level=logging.DEBUG)
   app = QtGui.QApplication(sys.argv)
-  pixmap = QtGui.QPixmap("splash.png")
+  pixmap = QtGui.QPixmap("logo.png")
   splash = QtGui.QSplashScreen(pixmap)
   splash.show()
   splash.showMessage("Load pimouss...")
   app.processEvents()
-  m=MainWindow()
-  m.show()
-  splash.finish(m)
+  win=MainWindow()
+  win.show()
+  splash.finish(win)  
   sys.exit(app.exec_())
-    
+
 if __name__ == '__main__':
   main()
 

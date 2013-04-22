@@ -32,7 +32,7 @@ import errno
 import sys
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 #__debug_level__=DEBUG
 #logging.basicConfig(level=logging.getattr(__debug_level__))
 
@@ -178,7 +178,7 @@ def plugin_import(name):
 
 class Pimouss(object):
   def __init__(self,plugin=None):
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.INFO)
     self.builder=None
     self.generator=None
     default_template=os.path.join(_module_path(),'layout.tpl')
@@ -289,6 +289,7 @@ class Builder(object):
     
   def parseByNames(self,path):
     files=[]
+    print glob.glob(os.path.join(path,'*.*'))
     for item in glob.glob(os.path.join(path,'*.*')):
       if string.split(os.path.basename(item),'.')[-1] in self.ext_lst:
         files.append(item)
