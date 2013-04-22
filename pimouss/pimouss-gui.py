@@ -35,41 +35,9 @@ try:
 except:
   raise NameError('Pyside is no installed on your system. Check http://qt-project.org/wiki/PySide for more')
 
-#import pimouss
-#from desktop.pimoussWidget import PimoussWidget as PimoussWidget 
 from pimoussWidget import PimoussWidget
 from desktop.AppMainWindow import MainWindow as AppMainWindow 
-#from desktop.PimoussTabbedWidget import PimoussTabbedWidget as PimoussTabbedWidget
 
-'''          
-class MainWindow(QtGui.QMainWindow):
-  def __init__(self):
-    super(MainWindow, self).__init__()
-    self.initUI()
-
-  def initUI(self):   
-    #self.mainWidget=PimoussTabbedWidget()
-    self.mainWidget=PimoussWidget()
-    self.appWindow=AppMainWindow(self.mainWidget)
-    self.statusBar().showMessage("using pimouss v. %s" %(pimouss.__version__))
-    #self.setCentralWidget(self.appWindow)
-    #self.setGeometry(300, 300, 350, 250)
-    self.setWindowTitle('Pimouss')    
-    #self.mainWidget.show()
-    self.appWindow.show()
-
-#def main():
-#  app = QtGui.QApplication(sys.argv)
-#  pixmap = QtGui.QPixmap("splash.png")
-#  splash = QtGui.QSplashScreen(pixmap)
-#  splash.show()
-#  splash.showMessage("Load pimouss...")
-#  app.processEvents()
-#  m=MainWindow()
-#  m.show()
-#  splash.finish(m)
-#  sys.exit(app.exec_())
-'''   
 title='pimouss'
 class MainWindow(AppMainWindow):
   def __init__(self,parent=None):
@@ -94,9 +62,7 @@ class MainWindow(AppMainWindow):
     logging.info('gui.MainWindow::setProject %s : %s' %(_name,path))
     self.setFileView(os.path.join(path))
     #setLog() # if on a per project config
-    
     #specific widget things here
-
     self.appWidget.pimoussInput=path
     self.appWidget.pimoussOutput=os.path.join(path,'_html')
     self.appWidget.updateFolderGroupBox()
@@ -115,7 +81,6 @@ class MainWindow(AppMainWindow):
 
 
 def main(): 
-
   formatter='%(asctime)s::%(levelname)s::%(message)s'
   print logfile
   logging.basicConfig(filename=os.path.abspath(logfile), filemode='w',format=formatter, level=logging.DEBUG)

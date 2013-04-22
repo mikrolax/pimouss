@@ -42,19 +42,12 @@ class PimoussThread(QtCore.QThread):
       self.buildPath=self.inputPath
       if self.generatePath == None:
         self.generatePath=os.path.join(self.inputPath,'_html')
-
       import pimouss
       p=pimouss.Pimouss()
       res=p.process(self.inputPath,buildpath=self.buildPath,outpath=self.generatePath) 
       message='return %s ' %res
       self.emit(QtCore.SIGNAL("pimoussExecEnd(PyObject)"), str(message))
 
-
-#def get_paramas_from_cfg(filename,section_name):
-  #bla={}
-  #for iterm in 
-  # bla[]=
-  #return bla
 
 
 class PimoussWidget(QtGui.QWidget):
@@ -103,7 +96,6 @@ class PimoussWidget(QtGui.QWidget):
     self.generatePathText =QtGui.QLineEdit()
     self.generatePathButton  =self.createButton("Change",self.selectGeneratePath)
 
-    
     filepathGroupBoxLayout=QtGui.QGridLayout()
     filepathGroupBoxLayout.addWidget(self.inputPathLabel,0,0)
     filepathGroupBoxLayout.addWidget(self.inputPathText,0,1)    
@@ -206,10 +198,8 @@ class PimoussWidget(QtGui.QWidget):
       message="pimouss successfully finished!\n "
     else:
       message="pimouss error!\n return error code : %s " %msg
-    
     #tmp=unicode(string)
     QtGui.QMessageBox.information(self,u"pimouss",message)
-
     msgBox =QtGui.QMessageBox()
     msgBox.setText(message)
     connectButton = msgBox.addButton(self.tr("Preview"), QtGui.QMessageBox.ActionRole)
