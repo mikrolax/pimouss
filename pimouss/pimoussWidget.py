@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Simple Graphical User Interface using pyside (Qt python binding) """
-__version__='alpha'
+""" Simple Pyside Widget """
+
 __author__='sebastien stang'
 __author_email__='seb@mikrolax.me'
 __license__="""Copyright (C) 2013 Sebastien Stang

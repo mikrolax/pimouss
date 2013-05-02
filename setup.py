@@ -9,19 +9,19 @@ try:
 except:
   print 'Can not import py2exe'
 
-
 setup(name='pimouss',
       version=pimouss.__version__,
-      description='',
-      author='sebastien stang',
-      author_email='seb@mikrolax.me',
-      url='',
-      #package_dir = {'': 'pimouss'},
+      description='simple static website builder',
+      author=pimouss.__author__,
+      author_email=pimouss.__author_email__,
+      license=pimouss.__license__,
+      url='http://mikrolax.github.com/pimouss',
+
       packages=['pimouss','pimouss.external','pimouss.desktop'],
       py_modules=['pimouss'], 
-      scripts=['igloo.py'], #pimouss
-
-      package_data={'desktop': ['static/*.png'],
+      scripts=['igloo.py'], # to change
+      
+      package_data={'pimouss.desktop': ['static/*.png'],
                   },
 
       #for py2exe 

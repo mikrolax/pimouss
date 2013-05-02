@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" mini file based static website/html pages generator """
-__version__='alpha'
+""" mini file-based static website/html pages generator """
+
+__version__='0.1.0-beta'
+
 __author__='sebastien stang'
 __author_email__='seb@mikrolax.me'
 __license__="""Copyright (C) 2013 Sebastien Stang
@@ -36,7 +38,7 @@ import logging
 #__debug_level__=DEBUG
 #logging.basicConfig(level=logging.getattr(__debug_level__))
 
-import threading
+#import threading
 from external import markdown2
 
 #very basic one file approch template
@@ -472,7 +474,7 @@ def pimoussProcess():
     import multiprocessing
   except:
     raise  
-'''
+
 
 
 class PimoussThread(threading.Thread): 
@@ -483,7 +485,7 @@ class PimoussThread(threading.Thread):
     
   def run(self):
     Pimouss()
-    
+'''    
     
     
 def pimoussCli():
