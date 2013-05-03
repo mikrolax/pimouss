@@ -38,6 +38,19 @@ except:
 from pimoussWidget import PimoussWidget
 from desktop.AppMainWindow import MainWindow as AppMainWindow 
 
+
+def _we_are_frozen():
+  return hasattr(sys, "frozen")
+
+def _module_path():
+  if _we_are_frozen():
+    return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding( )))
+  else:
+    return os.path.dirname(os.path.abspath(__file__))
+    
+    
+    
+    
 title='pimouss'
 class MainWindow(AppMainWindow):
   def __init__(self,parent=None):
@@ -53,22 +66,25 @@ class MainWindow(AppMainWindow):
     self.title=title
     self.init_ui()
     self.setLog(logfile)
-    self.setWindowTitle(title)
-    #self.connect(self.appWidget.thread, QtCore.SIGNAL('onStartProcess(PyObject)'), self.onStartProcess)    
-    #self.connect(self.appWidget.thread, QtCore.SIGNAL('onStopProcess(PyObject)'), self.onEndProcess)    
+    self.setWindowTitle(title)   
+    self.appWidget.setHTMLView(os.path.join(_module_path(),'desktop','static','welcome.html')) # Won't work if freeze...   
+    
+    self.connect(self.appWidget.thread, QtCore.SIGNAL("pimoussProcessStart(PyObject)"), self.onStartProcess)
+    self.connect(self.appWidget.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"), self.onEndProcess)
  
-
   def setProject(self, _name, path):
     logging.info('gui.MainWindow::setProject %s : %s' %(_name,path))
     self.setFileView(os.path.join(path))
     #setLog() # if on a per project config
     #specific widget things here
     self.appWidget.pimoussInput=path
-    self.appWidget.pimoussOutput=os.path.join(path,'_html')
+    self.appWidget.pimoussOutput=os.path.join(path,'_html') #NO!
     self.appWidget.updateFolderGroupBox()
-    if os.path.exist(os.path.join(path,'_html','index.html')):
+    if os.path.exists(os.path.join(path,'_html','index.html')):
       self.appWidget.setHTMLView(os.path.join(path,'_html','index.html'))            
-
+    else:
+      self.appWidget.setHTMLView(os.path.join(_module_path(),'desktop','static','welcome.html')) # Won't work if freeze...
+    
   def onStartProcess(self,msg):
     logging.debug('gui.MainWindow::onStartProcess: %s' %msg)
     self.startProcessTimer()

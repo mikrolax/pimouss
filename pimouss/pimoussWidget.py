@@ -28,37 +28,52 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 import os
 import logging
 from PySide import QtCore, QtGui,QtWebKit
-  
+
+import pimouss
+__version__=pimouss.__version__
+
 class PimoussThread(QtCore.QThread):
-    def __init__(self,inputPath,buildPath,generatePath,recursive=None,parent=None):
+    def __init__(self,parent=None):
       super(PimoussThread, self).__init__(parent)
+      self.inputPath=None
+      self.buildPath=None
+      self.generatePath=None
+      self.recursive=None
+    
+    def setParams(self,inputPath,buildPath,generatePath,recursive=None):
       self.inputPath=inputPath
       self.buildPath=buildPath
       self.generatePath=generatePath
       self.recursive=recursive
-      
+    
+    
     def run(self):
       #if self.buildPath == None:
+      message='processing...'
+      self.emit(QtCore.SIGNAL("pimoussProcessStart(PyObject)"), str(message))
       self.buildPath=self.inputPath
       if self.generatePath == None:
         self.generatePath=os.path.join(self.inputPath,'_html')
-      import pimouss
       p=pimouss.Pimouss()
       res=p.process(self.inputPath,buildpath=self.buildPath,outpath=self.generatePath) 
       message='return %s ' %res
-      self.emit(QtCore.SIGNAL("pimoussExecEnd(PyObject)"), str(message))
+      self.emit(QtCore.SIGNAL("pimoussProcessEnd(PyObject)"), str(message))
 
 
 
 class PimoussWidget(QtGui.QWidget):
   def __init__(self):
     super(PimoussWidget, self).__init__()
+    self.__version__=pimouss.__version__
+    self.__project__='pimouss'
     self.initUI()
     self.pimoussStarted=False
     self.webView=QtWebKit.QWebView() 
     self.pimoussInput=None
     self.pimoussBuild=None
     self.pimoussOutput=None
+    self.thread=PimoussThread()
+    self.connect(self.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"),self.pimoussEnd) #needed?
         
   def initUI(self):
     self.createFilepathGroupBox()
@@ -66,9 +81,14 @@ class PimoussWidget(QtGui.QWidget):
     self.createButtonsLayout()
 
     mainLayout = QtGui.QHBoxLayout()    
-    url='index.html'
+    url='welcome.html'
     self.mWebView = QtWebKit.QWebView()
     self.mWebView.load(url)
+    
+    self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
+    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)  
     mainLayout.addWidget(self.mWebView)
     
     configLayout = QtGui.QVBoxLayout()    
@@ -80,6 +100,7 @@ class PimoussWidget(QtGui.QWidget):
     self.setLayout(mainLayout)
     self.setWindowTitle("Pimouss")
     self.resize(300, 200)
+    #self.setHTMLView(os.path.join('desktop','static','welcome.html'))  # will not work if frozen...
 
   def createFilepathGroupBox(self):
     self.filepathGroupBox=QtGui.QGroupBox("File/Folder")
@@ -160,10 +181,8 @@ class PimoussWidget(QtGui.QWidget):
   def process(self):
     print 'recursive %s' %self.recursive.isChecked()
     if os.path.exists(self.pimoussInput) and not self.pimoussStarted:
-      self.thread=PimoussThread(self.pimoussInput,self.pimoussBuild,self.pimoussOutput)
-      print 'connect thread'
-      self.connect(self.thread, QtCore.SIGNAL("pimoussExecEnd(PyObject)"),self.pimoussEnd)
-      print 'try to start thread'
+      #self.thread=PimoussThread(self.pimoussInput,self.pimoussBuild,self.pimoussOutput)
+      self.thread.setParams(self.pimoussInput,self.pimoussBuild,self.pimoussOutput)
       self.thread.start()
       self.pimoussStarted=True
     else:
@@ -181,7 +200,8 @@ class PimoussWidget(QtGui.QWidget):
       if len(lst)>0:
         pagename=lst[0]
         try:
-          print 'try  %s' %pagename
+          print 'try  %s' %pagename          
+          print 'wk_preview %s ' %pagename
           self.webView.load(pagename)
           self.webView.show()    
         except:
@@ -190,7 +210,10 @@ class PimoussWidget(QtGui.QWidget):
         pass
 
   def setHTMLView(self,url): 
+    print 'setHTMLView %s ' %url
     self.mWebView.load(url)
+    #self.mWebView.show()
+    #self.mWebView.setUrl(url)
        
   def pimoussEnd(self, msg):
     self.pimoussStarted=False
