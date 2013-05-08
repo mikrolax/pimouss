@@ -38,7 +38,6 @@ except:
 from pimoussWidget import PimoussWidget
 from desktop.AppMainWindow import MainWindow as AppMainWindow 
 
-
 def _we_are_frozen():
   return hasattr(sys, "frozen")
 
@@ -64,7 +63,7 @@ class MainWindow(AppMainWindow):
     self.init_ui()
     self.setLog(logfile)
     self.setWindowTitle(title)   
-    self.appWidget.setHTMLView(os.path.join(_module_path(),'desktop','static','welcome.html')) # Won't work if freeze...   
+    self.appWidget.setHTMLView(os.path.join(_module_path(),'static','welcome.html'))   
     
     self.connect(self.appWidget.thread, QtCore.SIGNAL("pimoussProcessStart(PyObject)"), self.onStartProcess)
     self.connect(self.appWidget.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"), self.onEndProcess)

@@ -24,7 +24,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-
+import sys
 import os
 import logging
 from PySide import QtCore, QtGui,QtWebKit
@@ -33,6 +33,14 @@ from ConfigParser import SafeConfigParser
 import pimouss
 __version__=pimouss.__version__
 
+def _we_are_frozen():
+    """Returns whether we are frozen via py2exe.  This will affect how we find out where we are located."""
+    return hasattr(sys, "frozen")
+def _module_path():
+    """ This will get us the program's directory, even if we are frozen using py2exe"""
+    if _we_are_frozen():
+        return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding( )))
+    return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))  
 
     
 class PimoussThread(QtCore.QThread):
@@ -54,8 +62,8 @@ class PimoussThread(QtCore.QThread):
       message='processing...'
       self.emit(QtCore.SIGNAL("pimoussProcessStart(PyObject)"), str(message))
       self.buildPath=self.inputPath
-      if self.generatePath == None:
-        self.generatePath=os.path.join(self.inputPath,'_html')
+      #if self.generatePath == None:
+      #  self.generatePath=os.path.join(self.inputPath,'_html')
       p=pimouss.Pimouss()
       res=p.process(self.inputPath,buildpath=self.buildPath,outpath=self.generatePath) 
       message='return %s ' %res
@@ -118,8 +126,10 @@ class PimoussConfigWidget(QtGui.QWidget):
   def createButtonsLayout(self):
     self.saveButton = self.createButton("Save",self.save)
     self.saveButton.setToolTip('Save this config')  
+    self.saveButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_206_ok_2.png')))     
     self.closeButton = self.createButton("Close",self.hide)  
     self.closeButton.setToolTip('Close config window')  
+    self.closeButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_207_remove_2.png')))         
     self.buttonsLayout = QtGui.QHBoxLayout()
     self.buttonsLayout.addStretch()
     self.buttonsLayout.addWidget(self.saveButton)
@@ -173,7 +183,7 @@ class PimoussConfigWidget(QtGui.QWidget):
       
   def save(self):
     if not self.config.has_section(self.section_name):
-      self.config.add_section(section_name)
+      self.config.add_section(self.section_name)
     self.config.set(self.section_name,'inpath',self.pimoussInput)
     self.config.set(self.section_name,'buildpath',self.pimoussBuild)
     self.config.set(self.section_name,'outpath',self.pimoussOutput)
@@ -185,6 +195,8 @@ class PimoussConfigWidget(QtGui.QWidget):
     self.hide()
   #def hide(self):  
     
+    
+    
 class PimoussWidget(QtGui.QWidget):
   def __init__(self):
     super(PimoussWidget, self).__init__()
@@ -194,13 +206,13 @@ class PimoussWidget(QtGui.QWidget):
     self.pimoussStarted=False
     self.webView=QtWebKit.QWebView() 
     self.thread=PimoussThread()
-    self.connect(self.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"),self.pimoussEnd) #needed?
+    self.connect(self.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"),self.pimoussEnd) 
     self.wConf=PimoussConfigWidget()
         
   def initUI(self):
     self.createButtonsLayout()
     mainLayout = QtGui.QVBoxLayout()    
-    url='welcome.html'
+    url='welcome.html'        # !! use os.path.abspath(_module_path(),'static',welcome.html)
     self.mWebView = QtWebKit.QWebView()
     self.mWebView.load(url)
     self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
@@ -208,26 +220,24 @@ class PimoussWidget(QtGui.QWidget):
     #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
     #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)  
     configLayout = QtGui.QHBoxLayout()    
-    #configLayout.addWidget(self.filepathGroupBox)
-    #configLayout.addWidget(self.optionsGroupBox)
     configLayout.addLayout(self.buttonsLayout)    
     mainLayout.addLayout(configLayout)
     mainLayout.addWidget(self.mWebView)
             
     self.setLayout(mainLayout)
     self.setWindowTitle("Pimouss")
-    #self.resize(300, 200)
-    #self.setHTMLView(os.path.join('desktop','static','welcome.html'))  # will not work if frozen...
+    #self.setHTMLView(os.path.join('desktop','static','welcome.html'))  # !! use os.path.abspath(_module_path(),'static',welcome.html)
 
 
   def createButtonsLayout(self):
     self.configButton = self.createButton("Config",self.showConfig)
     self.configButton.setToolTip('Click here to see this pimouss config!')
+    self.configButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_137_cogwheels.png'))) 
     self.configButton.setDown(True)
     
     self.buildButton = self.createButton("HTML-ize",self.process)
     self.buildButton.setToolTip('Click here to launch pimouss!')
-    self.buildButton.setIcon(QtGui.QIcon(os.path.abspath('logo.png'))) #do not work...
+    self.buildButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_081_refresh.png')))     
     self.buildButton.setDown(True)
     
     self.buttonsLayout = QtGui.QHBoxLayout()

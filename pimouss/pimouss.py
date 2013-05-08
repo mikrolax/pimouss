@@ -115,17 +115,17 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
     res=string.split(os.path.basename(article),'.')
     html_article=''' '''
     if os.path.exists(article+'.tpl'):
-      logging.info('generate_page() :: using user defined article template : %s' %(res[0]+'.tpl'))
+      logging.debug('generate_page()::using user defined article template : %s' %(res[0]+'.tpl'))
       article_tpl=open(os.path.basename(article)+'.tpl','r').read()
     else:
-      logging.debug('generate_page():: No template for article, using default')
+      logging.debug('generate_page()::No template for article, using default')
       article_tpl=tpl_article
-    logging.debug('generate_page():: markdown process on article: %s',os.path.basename(article))        
+    logging.debug('generate_page()::markdown process on article: %s',os.path.basename(article))        
     html_article=md2html(article_tpl,article)
 
     if len(articles)>1:  
       if len(res)==2 and res[0] == pagename:
-        logging.info('generate_page() :: adding common html for page : %s' %(os.path.basename(article)))      
+        logging.debug('generate_page()::adding html for %s' %(os.path.basename(article)))      
         html+=html_article
       else:
         tabs.append(html_article)
@@ -134,7 +134,7 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
 
   if len(articles)>1:
     if style=='raw':
-      logging.info('generate_page using raw style')      
+      logging.debug('generate_page using raw style')      
       for article in tabs:
         html+=article  
     else:
@@ -165,7 +165,7 @@ def md2html(template,filepath):
   try:
     html=s.substitute(content=content)
   except:
-    logging.warning('string.Template substitute failed... Trying safe mode ')
+    logging.warning('md2html()::string.Template substitute failed... Trying safe mode ')
     html=s.safe_substitute(content=content)    
   return html
 
@@ -266,11 +266,12 @@ def copyfiles(src,dst):
       shutil.copytree(src, dst)
     except OSError as exc:
       if exc.errno == errno.ENOTDIR:
-        print("Folder %s already exists. Skipping..." % src)
+        logging.warning("Folder %s already exists. Skipping..." % src)
         shutil.copy(src, dst)
         #copyfiles(src, dst)
+        pass        
       elif exc.errno == errno.EEXIST:
-        print("File %s already exists. Skipping..." % src)
+        logging.warning("File %s already exists. Skipping..." % src)
         pass
       else: raise
 
@@ -304,7 +305,7 @@ class Builder(object):
       res=string.split(os.path.basename(item),'.')
       #print 'Builder :: parseByNames:: res : %s' %res      
       if res[0] not in pagelist:
-        logging.info('Pimouss :: Builder :: parseByNames :: add page : %s' %res[0])      
+        logging.debug('Pimouss :: Builder :: parseByNames :: add page : %s' %res[0])      
         pagelist.append(res[0])
         articledict[res[0]]=[] #or add itself?
       articledict[res[0]].append(item)    
@@ -318,7 +319,7 @@ class Builder(object):
     self.pages['template']=glob.glob(os.path.join(path,'*.tpl'))              
     global_tpl=None
     if os.path.isfile(os.path.join(path,'layout.tpl')):
-      logging.info('Builder :: parseByNames :: Find general layout file : %s' %'layout.tpl')
+      logging.debug('Builder :: parseByNames :: Find general layout file : %s' %'layout.tpl')
       self.pages['layout']=os.path.join(path,'layout.tpl')
       self.layout=os.path.join(path,'layout.tpl')
     else:
@@ -326,7 +327,7 @@ class Builder(object):
       self.pages['layout']=global_tpl
     
   #def parseFolder(self,path):
-  #  logging.info('Builder :: parseFolder :: %s' %path)
+  #  logging.debug('Builder :: parseFolder :: %s' %path)
   #  self.parseByNames(path)
   
   #def process(self,scan_path,output_path)
@@ -337,7 +338,7 @@ class Builder(object):
     #if 
     if os.path.exists(path):
       self.path=path
-      logging.info('Builder :: scan :: %s' %self.path)
+      logging.debug('Builder :: scan :: %s' %self.path)
       self.parseByNames(path)    
       #for item in os.listdir(self.path):
       #  if os.path.isdir(os.path.join(self.path,item)):
@@ -357,7 +358,7 @@ class Builder(object):
     if not os.path.exists(self.outfolder):
       os.makedirs(self.outfolder)  
     if buildpath != srcpath:  
-      logging.info('Builder :: write content files into :: %s' %self.outfolder)
+      logging.debug('Builder :: write content files into :: %s' %self.outfolder)
       for page in self.pages['pagelist']:
         for item in self.pages[page]:
           try:
@@ -372,7 +373,7 @@ class Builder(object):
       cfg=os.path.basename(self.path)+'.pimouss'
     else:
       cfg='.pimouss'
-    logging.info('Builder :: write content files into :: %s' %self.outfolder)
+    logging.debug('Builder :: write content files into :: %s' %self.outfolder)
     open(cfg,'w').write(str(self.pages))    #self.cfg.write()
       
     '''  
@@ -410,7 +411,7 @@ class Generator(object):
       if key in minimalPagesKeys:
         result=True
       if key not in minimalPagesKeys:
-        logging.warning('Pimouss :: chckpages :: undefined keys: %s' %key)
+        logging.debug('Pimouss :: chckpages :: undefined keys: %s' %key)
     return result
     
   def process(self,path,outpath=None,pagelist=None): #outname...
@@ -418,7 +419,7 @@ class Generator(object):
     if pagelist==None:
       self.scan(path) #get config...
     if outpath == None:
-      logging.info('Pimouss :: Generator :: no output folder specified, using "_www" folder')          
+      logging.warning('Pimouss :: Generator :: no output folder specified, using "_www" folder')          
       self.outpath=os.path.join(path,'_www')
     else:
       self.outpath=outpath

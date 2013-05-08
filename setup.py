@@ -12,6 +12,10 @@ except:
   print 'Can not import py2exe'
 
 data=glob.glob(os.path.join('pimouss','desktop','static','*.png'))
+data.extend(glob.glob(os.path.join('pimouss','static','img','*.png')))
+data.extend(glob.glob(os.path.join('pimouss','static','css','*.css')))
+data.extend(glob.glob(os.path.join('pimouss','static','js','*.js')))
+data.extend(glob.glob(os.path.join('pimouss','static','*.html')))
 
 setup(name='pimouss',
       version=pimouss.__version__,
@@ -26,6 +30,10 @@ setup(name='pimouss',
       scripts=['igloo.py'], # to change
       
       package_data={'pimouss.desktop': ['static/*.png'],
+                    'pimouss': ['static/img/*.png'],
+                    'pimouss': ['static/js/*.js'],
+                    'pimouss': ['static/css/*.css'],
+                    'pimouss': ['static/*.html'],                   
                   },
 
       #for py2exe 
