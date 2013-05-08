@@ -1,16 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" Simple TreeView widget with minimum logic using pyside """
+
+__author__ = 'Sebastien Stang'
+__author_email__='seb@mikrolax.me'
+__license__="""Copyright (C) 2013 Sebastien Stang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
 import sys
 import os
 import glob
 import logging
-
 try:
   from PySide import QtCore,QtGui
 except:
   raise NameError('Pyside is no installed on your system. Check http://qt-project.org/wiki/PySide for more')
-
 
 def _we_are_frozen():
     """Returns whether we are frozen via py2exe.
@@ -24,12 +45,11 @@ def _module_path():
     return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))  
 
 
-group_box_name='Projects'
-window_title='Project Widget'
+group_box_name=''
+window_title='Projects'
 parent_icon=os.path.join(_module_path(),'static','icon.png')
 #top_lvl_icon=QtGui.QIcon(parent_icon)
 #child_icon=QtGui.QIcon(parent_icon)
-
 #parent_icon=AppMainWindow.icon
 
 # options

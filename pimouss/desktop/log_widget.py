@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" Simple threaded logfile viewer using pyside """
+
 __author__ = 'Sebastien Stang'
 __author_email__='seb@mikrolax.me'
 __license__="""Copyright (C) 2013 Sebastien Stang
@@ -31,8 +33,8 @@ try:
 except:
   raise NameError('Pyside is no installed on your system. Check http://qt-project.org/wiki/PySide for more')
 
-group_box_name='Log'
-window_title='Log Widget'
+group_box_name=''
+window_title='Log'
 welcome_msg='Welcome!'
 
 #window_title=AppMainWindow.title
@@ -46,7 +48,7 @@ class LogThread(QtCore.QThread):
     self.tmp_content=''
     
   def run(self):
-    logging.info('LogThread::run')
+    logging.debug('LogThread::run')
     while(1):
       while(self.state=='started'):
         if self.logfile!=None and os.path.isfile(self.logfile):
@@ -54,21 +56,18 @@ class LogThread(QtCore.QThread):
           if s != self.tmp_content:
             self.tmp_content=s
             self.emit(QtCore.SIGNAL('updateLog(PyObject)'), s) 
-            #print '.',
-          print '*',  
         else:
           s='logfile path error: %s' %self.logfile
           self.emit(QtCore.SIGNAL('updateLog(PyObject)'), s) 
           self.state='stopped'
         time.sleep(1)
-        print '.',
                 
   def stop(self):
-    logging.info('LogThread::stop')
+    logging.debug('LogThread::stop')
     self.state='stopped'
       
   def set_filepath(self,filepath):
-    logging.info('LogThread::set_filepath : %s' %os.path.abspath(filepath) )
+    logging.debug('LogThread::set_filepath : %s' %os.path.abspath(filepath) )
     self.logfile=filepath  
     self.state='started'
 
@@ -96,6 +95,9 @@ class LogWidget(QtGui.QWidget):
     self.log.setText(welcome_msg)
     #self.show()
 
+  def clearLog(self):
+    open(self.logfile,'w').close()
+    
   def updateLog(self, msg):
     #self.log.setText(msg)
     self.log.clear()

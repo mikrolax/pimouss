@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" Simple HTML viewer widget using pyside webkit & treeView """
+
 __author__ = 'Sebastien Stang'
 __author_email__='seb@mikrolax.me'
 __license__="""Copyright (C) 2013 Sebastien Stang
@@ -28,8 +30,8 @@ try:
 except:
   raise NameError('Pyside is no installed on your system. Check http://qt-project.org/wiki/PySide for more')
 
-group_box_name='Files'
-window_title  ='Files Widget'
+group_box_name=''
+window_title  ='HTML viewer'
 parent_icon   ='icon.png'
 
 #=AppMainWindow.icon

@@ -3,7 +3,7 @@
 
 """ Simple Graphical User Interface using pyside (Qt python binding) """
 
-__author__='sebastien stang'
+__author__='Sebastien Stang'
 __author_email__='seb@mikrolax.me'
 __license__="""Copyright (C) 2013 Sebastien Stang
 
@@ -48,10 +48,7 @@ def _module_path():
   else:
     return os.path.dirname(os.path.abspath(__file__))
     
-    
-    
-    
-title='pimouss'
+title='Pimouss'
 class MainWindow(AppMainWindow):
   def __init__(self,parent=None):
     logging.debug('gui.MainWindow:: init %s' %parent)
@@ -73,17 +70,10 @@ class MainWindow(AppMainWindow):
     self.connect(self.appWidget.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"), self.onEndProcess)
  
   def setProject(self, _name, path):
-    logging.info('gui.MainWindow::setProject %s : %s' %(_name,path))
-    self.setFileView(os.path.join(path))
-    #setLog() # if on a per project config
+    logging.debug('gui.MainWindow::setProject %s : %s' %(_name,path))
     #specific widget things here
-    self.appWidget.pimoussInput=path
-    self.appWidget.pimoussOutput=os.path.join(path,'_html') #NO!
-    self.appWidget.updateFolderGroupBox()
-    if os.path.exists(os.path.join(path,'_html','index.html')):
-      self.appWidget.setHTMLView(os.path.join(path,'_html','index.html'))            
-    else:
-      self.appWidget.setHTMLView(os.path.join(_module_path(),'desktop','static','welcome.html')) # Won't work if freeze...
+    out_path=self.appWidget.update(_name,path) #return output folder
+    self.setFileView(os.path.join(out_path))
     
   def onStartProcess(self,msg):
     logging.debug('gui.MainWindow::onStartProcess: %s' %msg)
@@ -93,13 +83,13 @@ class MainWindow(AppMainWindow):
   def onEndProcess(self,msg):
     logging.debug('gui.MainWindow::onEndProcess: %s' %msg)
     self.stopProcessTimer()
-    self.statusBar().showMessage(msg)
+    self.statusBar().showMessage('Ready')
 
 
 def main(): 
   formatter='%(asctime)s::%(levelname)s::%(message)s'
   print logfile
-  logging.basicConfig(filename=os.path.abspath(logfile), filemode='w',format=formatter, level=logging.DEBUG)
+  logging.basicConfig(filename=os.path.abspath(logfile), filemode='w',format=formatter, level=logging.INFO)
   app = QtGui.QApplication(sys.argv)
   pixmap = QtGui.QPixmap("logo.png")
   splash = QtGui.QSplashScreen(pixmap)

@@ -190,14 +190,14 @@ class AutoConfigWidget(QtGui.QWidget):
     self.setWindowIcon(QtGui.QIcon(self.icon))
 
   def addWorkspace(self,_name,path):
-    logging.info('AutoConfigWidget:: addWorkspace %s' %path)
+    logging.debug('AutoConfigWidget:: addWorkspace %s' %path)
     self.config.create(_name, path)
     for key in self.params:
       self.config.config.set(_name,key,self.params[key])
     #self.set_params(_name)
 
   def setWorkspace(self, _name, path):
-    logging.info('AutoConfigWidget:: setWorkspace %s' %path)
+    logging.debug('AutoConfigWidget:: setWorkspace %s' %path)
     self.currentWorkspace=path
     self.section_name=_name
     #self.set_params(_name)
@@ -222,7 +222,7 @@ class AutoConfigWidget(QtGui.QWidget):
 
     
   def set_params(self,section_name):
-    logging.info('AutoConfigWidget:: set_params %s' %section_name)
+    logging.debug('AutoConfigWidget:: set_params %s' %section_name)
     #self.section_name=section_name
     print 'AutoConfigWidget: set_params'
     print self.params
@@ -287,7 +287,7 @@ class AutoConfigWidget(QtGui.QWidget):
 class Config(object):
   """ Simple config holder """
   def __init__(self,parent=None,filepath=None):
-    logging.info('Config :: __init__')
+    logging.debug('Config :: __init__')
     #parent
     #self.parent=parent
     self.config = SafeConfigParser()
@@ -315,7 +315,7 @@ class Config(object):
     try:
       for option in self.config.options('WORKSPACE'):
         self.workspace.append((option, self.config.get('WORKSPACE', option)))
-        logging.info('Config :: option : %s / %s ' %(option, self.config.get('WORKSPACE', option)) )
+        logging.debug('Config :: option : %s / %s ' %(option, self.config.get('WORKSPACE', option)) )
     except:
       self.config.add_section('WORKSPACE')
       self.write()
@@ -323,7 +323,7 @@ class Config(object):
     try:
       for option in self.config.options('OPTIONS'):
         #self.workspace.append((option, self.config.get('OPTIONS', option)))
-        logging.info('Config :: option : %s / %s ' %(option, self.config.get('OPTIONS', option)) )
+        logging.debug('Config :: option : %s / %s ' %(option, self.config.get('OPTIONS', option)) )
     except:
        self.config.add_section('OPTIONS')
        self.write()

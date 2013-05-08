@@ -142,7 +142,7 @@ class MainWindow(QtGui.QMainWindow):
     #self.projectMenu = self.menuBar().addMenu("&Project")
     #self.projectMenu.addAction(self.addProjectAct)   
     #self.projectMenu.addAction(self.deleteProjectAct)
-    self.viewMenu=self.menuBar().addMenu("&About")
+    #self.viewMenu=self.menuBar().addMenu("&About")
     workspaceGroup = QtGui.QActionGroup(self)
     import functools
     for item in self.config.workspace:
