@@ -300,9 +300,9 @@ class Config(object):
       
   def create(self, name, path):
     logging.info('Config :: create %s / %s' %(name,path))
-    self.config.set('WORKSPACE', name, path) #??    
+    self.config.set('WORKSPACE', name, path)     
     self.workspace.append((name, path))
-    self.config.add_section(name)
+    #self.config.add_section(name)
     self.write()
 
   def read(self):
@@ -311,11 +311,12 @@ class Config(object):
     try:
       self.config.read(self.filepath)
     except:
+      logging.error('Config :: cannot read %s '%self.filepath)
       return -1
     try:
       for option in self.config.options('WORKSPACE'):
         self.workspace.append((option, self.config.get('WORKSPACE', option)))
-        logging.debug('Config :: option : %s / %s ' %(option, self.config.get('WORKSPACE', option)) )
+        logging.debug('Config :: pimouss : %s / %s ' %(option, self.config.get('WORKSPACE', option)) )
     except:
       self.config.add_section('WORKSPACE')
       self.write()
@@ -349,7 +350,6 @@ class Config(object):
   def write(self):
     logging.info('Config :: write config.ini' )
     logging.debug( self.workspace )
-    
     self.config.remove_section('WORKSPACE')
     self.config.add_section('WORKSPACE')
     for name, path in self.workspace:

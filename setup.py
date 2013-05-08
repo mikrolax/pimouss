@@ -26,14 +26,11 @@ setup(name='pimouss',
       url='http://mikrolax.github.com/pimouss',
 
       packages=['pimouss','pimouss.external','pimouss.desktop'],
-      py_modules=['pimouss'], 
+      #py_modules=['pimouss'], 
       scripts=['igloo.py'], # to change
       
       package_data={'pimouss.desktop': ['static/*.png'],
-                    'pimouss': ['static/img/*.png'],
-                    'pimouss': ['static/js/*.js'],
-                    'pimouss': ['static/css/*.css'],
-                    'pimouss': ['static/*.html'],                   
+                    'pimouss': ['static/img/*.png','static/js/*.js','static/css/*.css','static/*.html'],                  
                   },
 
       #for py2exe 

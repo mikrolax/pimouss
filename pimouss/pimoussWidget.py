@@ -80,7 +80,7 @@ class PimoussConfigWidget(QtGui.QWidget):
     self.initUI()
     self.config_file='config.ini'
     self.config = SafeConfigParser()
-    self.config.read(self.config_file)
+    
 
   def initUI(self):
     self.createFilepathGroupBox()
@@ -164,6 +164,7 @@ class PimoussConfigWidget(QtGui.QWidget):
     self.updateFolderGroupBox()
   
   def read(self,section_name,base_path):
+    self.config.read(self.config_file)
     self.section_name=section_name
     self.pimoussInput=os.path.abspath(base_path)
     self.pimoussBuild=os.path.abspath(base_path)
@@ -234,18 +235,21 @@ class PimoussWidget(QtGui.QWidget):
     self.configButton.setToolTip('Click here to see this pimouss config!')
     self.configButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_137_cogwheels.png'))) 
     self.configButton.setDown(True)
-    
+
     self.buildButton = self.createButton("HTML-ize",self.process)
-    self.buildButton.setToolTip('Click here to launch pimouss!')
+    self.buildButton.setToolTip('Click here to launch this pimouss!')
     self.buildButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_081_refresh.png')))     
     self.buildButton.setDown(True)
-    
+ 
+    self.helpButton = self.createButton("",self.help)
+    self.helpButton.setToolTip('Click here to view Help')
+    self.helpButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_194_circle_question_mark.png')))     
+       
     self.buttonsLayout = QtGui.QHBoxLayout()
     self.buttonsLayout.addStretch()
     self.buttonsLayout.addWidget(self.configButton)
     self.buttonsLayout.addWidget(self.buildButton)
-    #self.buttonsLayout.addWidget(self.saveScreenshotButton)
-    #self.buttonsLayout.addWidget(self.quitScreenshotButton)
+    self.buttonsLayout.addWidget(self.helpButton)    
 
   def createButton(self, text, member):
     button = QtGui.QPushButton(text)
@@ -253,12 +257,14 @@ class PimoussWidget(QtGui.QWidget):
     return button
 
   def setHTMLView(self,url): 
-    print 'setHTMLView %s ' %url
     self.mWebView.load(url)
     
   def showConfig(self):
     self.wConf.show()
-  
+    
+  def help(self):
+    self.setHTMLView(os.path.join(_module_path(),'static','welcome.html'))
+    
   def update(self,name,inpath):
     self.configButton.setDown(False)
     self.buildButton.setDown(False)
@@ -269,7 +275,7 @@ class PimoussWidget(QtGui.QWidget):
     return self.wConf.pimoussOutput
 
   def process(self):
-    print 'recursive %s' %self.wConf.recursive.isChecked()
+    #print 'recursive %s' %self.wConf.recursive.isChecked()
     if os.path.exists(self.wConf.pimoussInput) and not self.pimoussStarted:
       self.thread.setParams(self.wConf.pimoussInput,self.wConf.pimoussBuild,self.wConf.pimoussOutput)
       self.thread.start()

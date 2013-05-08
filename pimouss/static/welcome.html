@@ -55,16 +55,16 @@
       /* Not required for template or sticky footer method. */
 
       #wrap > .container {
-        padding-top: 60px;
+        padding-top: 5px;
       }
       .container .credit {
         margin: 20px 0;
       }
-
+ /*
       code {
         font-size: 80%;
       }
-
+*/
     </style>
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 
@@ -87,22 +87,20 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">Project name</a>
+            <a class="brand" href="#">Pimouss</a>
             <div class="nav-collapse collapse">
               <ul class="nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
+          <!--      <li class="active"><a href="doc.html">Doc</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="mailto:seb@mikrolax.me">Contact</a></li>        -->
                 <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">On the web <b class="caret"></b></a>
                   <ul class="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
+                    <li><a href="https://pimouss.mikrolax.me">Website</a></li>
                     <li class="divider"></li>
-                    <li class="nav-header">Nav header</li>
-                    <li><a href="#">Separated link</a></li>
-                    <li><a href="#">One more separated link</a></li>
+                    <li class="nav-header">Github</li>
+                    <li><a href="https://github.com/mikrolax/pimouss">Project</a></li>
+                    <li><a href="https://github.com/mikrolax/pimouss/issues">Bugs</a></li>
                   </ul>
                 </li>
               </ul>
@@ -116,24 +114,36 @@
         <div class="page-header">
           <h1>Welcome</h1>
         </div>
-        <p class="lead"> How-to:</p>
-        
-        <p>1. Add a folder that will be processed by `pimouss`</p>
-        <p>2. Adjust options</p>
-        <p>3. Run! </p>
-        <p>4. Look at log for errors & preview generated HTML</p>
-        
-      </div>
+        <p class="lead"> 3-steps quick how-to:</p>
+
+          <div class="row-fluid">
+            <div class="span4">
+              <h4><img class="img-rounded" src="img/glyphicons_145_folder_plus.png"> 1. Add</h4>
+              <p>Add folder(s) to be proceed by pimouss by right-clicking on the <strong>Project</strong> dock. You will have to choose a folder on your disk and give this pimous a name</p>
+            </div>
+            <div class="span4">
+              <h4><img class="img-rounded" src="img/glyphicons_137_cogwheels.png"> 2. Adjust & Run!</h4>
+              <p>Edit/change pimouss option by clicking on the <strong>config</strong> button. Launch process by clicking on the <strong>HTML-ize</strong> button.</p>
+            </div>
+            <div class="span4">
+              <h4><img class="img-rounded" src="img/glyphicons_206_ok_2.png"> 3. Control & Preview</h4>
+              <p>Look at log for errors in the <strong>Log</strong> dock. Preview generated HTML by right-clicking on the html file in the <strong>Report</strong> dock.</p>
+            </div>
+          </div>
+            
+          </div>
 
       <div id="push"></div>
 
-    </div>
+      </div>
 
 
 
     <div id="footer">
       <div class="container">
-        <p class="muted credit">Example courtesy <a href="http://martinbean.co.uk">Martin Bean</a> and <a href="http://ryanfait.com/sticky-footer/">Ryan Fait</a>.</p>
+        <p class="muted credit"> &copy <a href="http://mikrolax.me">mikrolax.me</a> 
+        | Website 
+        | Bugs </p>
       </div>
     </div>
 

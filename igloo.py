@@ -28,8 +28,9 @@ import pimouss.gui
 def main():
   pimouss.gui.main()
   '''try:
-    print 'error launching pimouss GUI interface...'
+    pimouss.gui.main()
   except:
+    print 'error launching pimouss GUI interface...'
     try:
       pimouss.pimouss.main()
     except:
