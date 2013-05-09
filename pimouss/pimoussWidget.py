@@ -78,7 +78,7 @@ class PimoussConfigWidget(QtGui.QWidget):
     self.pimoussBuild=None
     self.pimoussOutput=None
     self.initUI()
-    self.config_file='config.ini'
+    self.config_file='config.ini' #!Warning
     self.config = SafeConfigParser()
     
 
@@ -181,6 +181,7 @@ class PimoussConfigWidget(QtGui.QWidget):
   def update(self,section_name,base_path):
     self.read(section_name,base_path)
     self.updateFolderGroupBox()
+    return self.pimoussOutput
       
   def save(self):
     if not self.config.has_section(self.section_name):
@@ -209,7 +210,10 @@ class PimoussWidget(QtGui.QWidget):
     self.thread=PimoussThread()
     self.connect(self.thread, QtCore.SIGNAL("pimoussProcessEnd(PyObject)"),self.pimoussEnd) 
     self.wConf=PimoussConfigWidget()
-        
+    
+    import ftptool
+    self.wFTP=ftptool.FtpWindow()
+            
   def initUI(self):
     self.createButtonsLayout()
     mainLayout = QtGui.QVBoxLayout()    
@@ -234,23 +238,29 @@ class PimoussWidget(QtGui.QWidget):
     self.configButton = self.createButton("Config",self.showConfig)
     self.configButton.setToolTip('Click here to see this pimouss config!')
     self.configButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_137_cogwheels.png'))) 
-    self.configButton.setDown(True)
+    self.configButton.setEnabled(False)
 
     self.buildButton = self.createButton("HTML-ize",self.process)
     self.buildButton.setToolTip('Click here to launch this pimouss!')
     self.buildButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_081_refresh.png')))     
-    self.buildButton.setDown(True)
+    self.buildButton.setEnabled(False)
  
     self.helpButton = self.createButton("",self.help)
     self.helpButton.setToolTip('Click here to view Help')
     self.helpButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_194_circle_question_mark.png')))     
+
+    self.ftpButton = self.createButton("FTP",self.showFTP)
+    self.ftpButton.setToolTip('Upload generated website via FTP')
+    self.ftpButton.setIcon(QtGui.QIcon(os.path.join(_module_path(),'static','img','glyphicons_363_cloud_upload.png')))     
+    self.ftpButton.setEnabled(False)
        
     self.buttonsLayout = QtGui.QHBoxLayout()
     self.buttonsLayout.addStretch()
     self.buttonsLayout.addWidget(self.configButton)
     self.buttonsLayout.addWidget(self.buildButton)
-    self.buttonsLayout.addWidget(self.helpButton)    
-
+    self.buttonsLayout.addWidget(self.ftpButton)   
+    self.buttonsLayout.addWidget(self.helpButton) 
+    
   def createButton(self, text, member):
     button = QtGui.QPushButton(text)
     button.clicked.connect(member)
@@ -258,17 +268,22 @@ class PimoussWidget(QtGui.QWidget):
 
   def setHTMLView(self,url): 
     self.mWebView.load(url)
-    
+  
   def showConfig(self):
     self.wConf.show()
+  
+  def showFTP(self):
+    self.wFTP.show()
     
   def help(self):
     self.setHTMLView(os.path.join(_module_path(),'static','welcome.html'))
     
   def update(self,name,inpath):
-    self.configButton.setDown(False)
-    self.buildButton.setDown(False)
+    self.configButton.setEnabled(True)
+    self.buildButton.setEnabled(True)
+    self.ftpButton.setEnabled(True)
     self.wConf.update(name,inpath)
+    self.wFTP.setConfig('config.ini',name,src_dir=self.wConf.pimoussOutput) 
     if self.wConf.pimoussOutput != None:
       if os.path.exists(os.path.join(self.wConf.pimoussOutput,'index.html')):
         self.setHTMLView(os.path.join(self.wConf.pimoussOutput,'index.html'))
