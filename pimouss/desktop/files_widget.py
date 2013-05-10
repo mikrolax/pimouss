@@ -73,7 +73,9 @@ class FilesWidget(QtGui.QWidget):
     self.connect(self.tree, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
     self.previewAct=QtGui.QAction('&Preview', self) #delete selected if any
     self.previewAct.triggered.connect(self.preview)
-  
+    self.webPreviewAct=QtGui.QAction('&Open in Web Browser', self) #delete selected if any
+    self.webPreviewAct.triggered.connect(self.previewWebrowser)
+      
   def set_path(self,path):
     logging.debug('FilesWidget::set_path %s' %path)  
     self.folderpath=path
@@ -86,6 +88,7 @@ class FilesWidget(QtGui.QWidget):
     logging.debug('FilesWidget::showContextMenu')
     menu = QtGui.QMenu()
     viewAction=menu.addAction(self.previewAct)    
+    viewAction=menu.addAction(self.webPreviewAct)        
     menu.exec_(QtGui.QCursor.pos())
     
   def preview(self,url=None):
@@ -95,4 +98,11 @@ class FilesWidget(QtGui.QWidget):
     self.mWebView.load(url)
     self.mWebView.show()    
     
-    
+  def previewWebrowser(self,url=None) : 
+    index = self.tree.currentIndex()
+    url = self.model.filePath(index) 
+    try:
+      import webbrowser
+      webbrowser.open(url, new=2)
+    except:
+      logging.error('Cannot open file in web browser...')   
