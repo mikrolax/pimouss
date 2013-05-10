@@ -24,17 +24,20 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 """
 
 import pimouss.gui
+import pimouss.interactive
+import pimouss.pimouss
 
 def main():
   pimouss.gui.main()
   '''try:
     pimouss.gui.main()
   except:
-    print 'error launching pimouss GUI interface...'
+    print 'error launching pimouss GUI interface... Fall back on interactive command line.'
     try:
-      pimouss.pimouss.main()
+      pimouss.interactive.main()
     except:
       print 'error launching pimouss...'
+      pimouss.pimouss.main()
       return 1'''
 
 if __name__ == '__main__':
