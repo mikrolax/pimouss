@@ -8,16 +8,19 @@ import subprocess
 import sys
 
 def generate_data(folder,datas):
-  #if not os.path.exists(folder):
-  #  print 'make %s' %folder
-  #  os.mkdir(folder)
+  if not os.path.exists(folder):
+    try:
+      print 'mkdir %s' %folder
+      os.makedirs(folder)
+    except:
+      print 'failed to create %s' %folder
+      pass  
   for md_filename in datas.keys():
     if md_filename!='static':
       print 'generate %s' %(md_filename)
-      try:
-        codecs.open(os.path.abspath(os.path.join(folder,md_filename)),'w','utf-8').write(datas[md_filename])
-      except:
-        print 'cannot create %s' %os.path.abspath(os.path.join(folder,md_filename))
+      f=codecs.open(os.path.abspath(os.path.join(folder,md_filename)),'w','utf-8')
+      f.write(datas[md_filename])
+      f.close()
     else:
       for static_file in datas['static']:
         src=os.path.join(folder,md_filename)
@@ -80,19 +83,19 @@ class Test(PimoussTests):
       
   def test_setup_sdist(self):
     """ source distribution packing test. Depending on platform, try to build binaries.  """  
-    subprocess.call('python setup.py sdist > test.log',shell=True)
+    subprocess.call('python setup.py sdist',shell=True)
     if sys.platform == 'win32':
       self.setup_py2exe()
   
   def setup_py2exe(self):
-    subprocess.call('python setup.py py2exe > test.log',shell=True)
+    subprocess.call('python setup.py py2exe',shell=True)
 
 
 
 def clean():
   import shutil
   build=os.path.join('build')
-  example=os.path.join('example','_www')
+  example=os.path.join('example')
   if os.path.exists(build):
     print 'remove build folder'
     shutil.rmtree(build)
