@@ -221,9 +221,9 @@ class PimoussWidget(QtGui.QWidget):
     self.mWebView = QtWebKit.QWebView()
     self.mWebView.load(url)
     self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
-    #self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)  
+    self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+    self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.JavascriptEnabled, True)
+    self.mWebView.settings().setAttribute(QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)  
     configLayout = QtGui.QHBoxLayout()    
     configLayout.addLayout(self.buttonsLayout)    
     mainLayout.addLayout(configLayout)
@@ -267,7 +267,9 @@ class PimoussWidget(QtGui.QWidget):
     return button
 
   def setHTMLView(self,url): 
-    self.mWebView.load(url)
+    print 'loading %s' %url
+    #self.mWebView.load(QtCore.QUrl(url))
+    self.mWebView.load(QtCore.QUrl.fromLocalFile(url))
   
   def showConfig(self):
     self.wConf.show()

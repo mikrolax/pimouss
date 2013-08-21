@@ -51,7 +51,7 @@ title='Pimouss'
 class MainWindow(AppMainWindow):
   def __init__(self,parent=None):
     logging.debug('gui.MainWindow:: init %s' %parent)
-    self.appWidget=PimoussWidget()
+    self.appWidget=PimoussWidget() # contains self.appWidget.thread
     super(MainWindow, self).__init__(self.appWidget,self)
     self.parent=parent
     self.init()
@@ -71,6 +71,8 @@ class MainWindow(AppMainWindow):
   def setProject(self, _name, path):
     logging.debug('gui.MainWindow::setProject %s : %s' %(_name,path))
     #specific widget things here
+    self._name=_name
+    self.path=path
     out_path=self.appWidget.update(_name,path) #return output folder
     self.setFileView(os.path.join(out_path))
     
@@ -83,6 +85,7 @@ class MainWindow(AppMainWindow):
     logging.debug('gui.MainWindow::onEndProcess: %s' %msg)
     self.stopProcessTimer()
     self.statusBar().showMessage('Ready')
+    self.setProject(self._name,self.path)
 
 
 def main(): 

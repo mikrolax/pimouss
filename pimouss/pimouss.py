@@ -34,7 +34,9 @@ import errno
 import sys
 
 import logging
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s::%(name)s::%(levelname)s::%(message)s')
+logger=logger=logging.getLogger('pimouss')
+
 #__debug_level__=DEBUG
 #logging.basicConfig(level=logging.getattr(__debug_level__))
 
@@ -42,7 +44,8 @@ import logging
 from external import markdown2
 
 #very basic one file approch template
-tpl_page='''
+tpl_page='''.
+<!DOCTYPE html>
   <html>
     <head>
       <title>  </title>
@@ -115,17 +118,17 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
     res=string.split(os.path.basename(article),'.')
     html_article=''' '''
     if os.path.exists(article+'.tpl'):
-      logging.debug('generate_page()::using user defined article template : %s' %(res[0]+'.tpl'))
+      logger.debug('generate_page()::using user defined article template : %s' %(res[0]+'.tpl'))
       article_tpl=open(os.path.basename(article)+'.tpl','r').read()
     else:
-      logging.debug('generate_page()::No template for article, using default')
+      logger.debug('generate_page()::No template for article, using default')
       article_tpl=tpl_article
-    logging.debug('generate_page()::markdown process on article: %s',os.path.basename(article))        
+    logger.debug('generate_page()::markdown process on article: %s',os.path.basename(article))        
     html_article=md2html(article_tpl,article)
 
     if len(articles)>1:  
       if len(res)==2 and res[0] == pagename:
-        logging.debug('generate_page()::adding html for %s' %(os.path.basename(article)))      
+        logger.debug('generate_page()::adding html for %s' %(os.path.basename(article)))      
         html+=html_article
       else:
         tabs.append(html_article)
@@ -134,13 +137,13 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
 
   if len(articles)>1:
     if style=='raw':
-      logging.debug('generate_page using raw style')      
+      logger.debug('generate_page using raw style')      
       for article in tabs:
         html+=article  
     else:
       if style!=None:
-        logging.warning('Unknown style : %s. Processing default tabbed style' %style)
-      logging.debug('generate_page() :: making tabs : %s' %(tabsnames))   
+        logger.warning('Unknown style : %s. Processing default tabbed style' %style)
+      logger.debug('generate_page() :: making tabs : %s' %(tabsnames))   
       tmp=make_tabs(tabs,tabsnames)
       html+=tmp.decode('utf-8')
   else:    
@@ -156,17 +159,33 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
 def md2html(template,filepath):
   """  write html snippet based on template and file """
   #look if filepath is a list or not?
+  content=''
   s = string.Template(template)  
-  #try:
-  content=markdown2.markdown_path(filepath)#safe_mode=True
-  #except:
+  try:
+    content=markdown2.markdown_path(filepath)
+  except:
+    logger.warning('md2html()::markdown convertion failed... Trying safe mode ')
+    try:
+      content=markdown2.markdown_path(filepath,safe_mode=True)
+    except:
+      logger.error('md2html()::markdown convertion failed for %s. Use raw text.' %filepath)
+      import codecs
+      try:
+        content=codecs.open(filepath,'r','utf-8').read()
+      except:
+        logger.error('invalid file %s ' %filepath)
+        
   #  print 'error processing markdown. Read raw file...'  
-  #  content=open(filepath,'r').read()
+  html=''
   try:
     html=s.substitute(content=content)
   except:
-    logging.warning('md2html()::string.Template substitute failed... Trying safe mode ')
-    html=s.safe_substitute(content=content)    
+    logger.warning('md2html()::string.Template substitute failed... Trying safe mode ')
+    try:
+      html=s.safe_substitute(content=content)    
+    except:
+      logger.error('md2html()::string.Template conversion failed for : %s ' %filepath)
+      
   return html
 
 '''
@@ -180,7 +199,6 @@ def plugin_import(name):
 
 class Pimouss(object):
   def __init__(self,plugin=None):
-    #logging.basicConfig(level=logging.INFO)
     self.builder=None
     self.generator=None
     default_template=os.path.join(_module_path(),'layout.tpl')
@@ -206,8 +224,8 @@ class Pimouss(object):
       
       self.builder.layout=self.layout
       self.generator.layout=self.layout
-      print  self.builder
-      print  self.generator         
+      #print  self.builder
+      #print  self.generator         
   
   def scan_plugin(self):
     """ return a list of available plugin  """
@@ -216,12 +234,12 @@ class Pimouss(object):
     for f in os.listdir(pluginpath):
       if os.path.isfile(os.path.join(pluginpath,f)) and os.path.splitext(os.path.join(pluginpath,f))[-1]=='.py' :
         if 'plugin_' in os.path.basename(f):
-          logging.debug("Pimouss :: found plugin : %s",f)
+          logger.debug("Pimouss :: found plugin : %s",f)
           plugins.append(f)
     return plugins    
     
   def build(self,srcpath,buildpath=None):
-    logging.info('Pimouss :: build %s' %srcpath)                  
+    logger.info('Pimouss :: build %s' %srcpath)                  
     self.pages=self.builder.scan(srcpath)
     if buildpath==None:
       buildpath=srcpath 
@@ -234,13 +252,13 @@ class Pimouss(object):
     #return self.pages['pagelist']
 
   def generate(self,buildpath,outpath=None):
-    logging.info('Pimouss :: generate %s ' %outpath)
+    logger.info('Pimouss :: generate %s ' %outpath)
     if outpath==None:
       buildpath=outpath
     self.generator.process(buildpath,outpath)
     
   def process(self,inpath,buildpath=None,outpath=None):
-    logging.info('Pimouss :: process %s' %inpath)
+    logger.info('Pimouss :: process %s' %inpath)
     if buildpath==None:
       buildpath=inpath
     if outpath==None:
@@ -252,28 +270,36 @@ class Pimouss(object):
       
   def cp_static_files(self,inpath,outpath): #inpath not needed... use copyfiles !
     """ search for a 'static' folder and copy tree to output """ 
-    logging.debug('Pimouss :: cpStaticFiles')
+    logger.debug('Pimouss :: cpStaticFiles')
     for folder in os.listdir(inpath):
       if folder == 'static':
-        logging.info('Pimouss :: cpStaticFiles :: found static folder, copy all...')
+        logger.info('Pimouss :: cpStaticFiles :: found static folder, copy all...')
+        if os.path.exists(os.path.join(outpath,folder)):
+          logger.warning('Remove old static folder')
+          shutil.rmtree(os.path.join(outpath,folder)) #not efficient. Should do it incrementaly...
         copyfiles(os.path.join(inpath,folder),os.path.join(outpath,folder))
 
     
     
 def copyfiles(src,dst):
-    logging.debug('Pimouss :: copyfiles')
+    logger.warning('Pimouss :: copyfiles from %s to %s' %(src,dst))
     try:
+      shutil.copytree(src, dst)
+    except:
+      logger.warning("Error copying files...")
+
+    '''try:
       shutil.copytree(src, dst)
     except OSError as exc:
       if exc.errno == errno.ENOTDIR:
-        logging.warning("Folder %s already exists. Skipping..." % src)
+        logger.warning("Folder %s already exists. Skipping..." % src)
         shutil.copy(src, dst)
         #copyfiles(src, dst)
         pass        
       elif exc.errno == errno.EEXIST:
-        logging.warning("File %s already exists. Skipping..." % src)
+        logger.warning("File %s already exists. Skipping..." % src)
         pass
-      else: raise
+      else: raise'''
 
 
 class Builder(object): 
@@ -292,11 +318,11 @@ class Builder(object):
     
   def parseByNames(self,path):
     files=[]
-    print glob.glob(os.path.join(path,'*.*'))
+    #print glob.glob(os.path.join(path,'*.*'))
     for item in glob.glob(os.path.join(path,'*.*')):
       if string.split(os.path.basename(item),'.')[-1] in self.ext_lst:
         files.append(item)
-    logging.debug('Pimouss :: Builder :: parseByNames:: files for %s : %s' %(path,files))
+    logger.debug('Pimouss :: Builder :: parseByNames:: files for %s : %s' %(path,files))
     res = None
     pagelist=[]
     articledict={}
@@ -305,21 +331,21 @@ class Builder(object):
       res=string.split(os.path.basename(item),'.')
       #print 'Builder :: parseByNames:: res : %s' %res      
       if res[0] not in pagelist:
-        logging.debug('Pimouss :: Builder :: parseByNames :: add page : %s' %res[0])      
+        logger.debug('Pimouss :: Builder :: parseByNames :: add page : %s' %res[0])      
         pagelist.append(res[0])
         articledict[res[0]]=[] #or add itself?
       articledict[res[0]].append(item)    
     if len(pagelist)>0:
       self.pages['pagelist'] = pagelist
       for page in pagelist:      
-        logging.debug('Pimouss :: Builder :: parseByNames :: pages= %s ' %page)
-        logging.debug('Pimouss :: Builder :: parseByNames :: articles= %s ' %articledict[page])      
+        logger.debug('Pimouss :: Builder :: parseByNames :: pages= %s ' %page)
+        logger.debug('Pimouss :: Builder :: parseByNames :: articles= %s ' %articledict[page])      
         self.pages[page]=articledict[page] 
     #look for templates/layout... To ENHANCE...
     self.pages['template']=glob.glob(os.path.join(path,'*.tpl'))              
     global_tpl=None
     if os.path.isfile(os.path.join(path,'layout.tpl')):
-      logging.debug('Builder :: parseByNames :: Find general layout file : %s' %'layout.tpl')
+      logger.debug('Builder :: parseByNames :: Find general layout file : %s' %'layout.tpl')
       self.pages['layout']=os.path.join(path,'layout.tpl')
       self.layout=os.path.join(path,'layout.tpl')
     else:
@@ -327,7 +353,7 @@ class Builder(object):
       self.pages['layout']=global_tpl
     
   #def parseFolder(self,path):
-  #  logging.debug('Builder :: parseFolder :: %s' %path)
+  #  logger.debug('Builder :: parseFolder :: %s' %path)
   #  self.parseByNames(path)
   
   #def process(self,scan_path,output_path)
@@ -338,17 +364,17 @@ class Builder(object):
     #if 
     if os.path.exists(path):
       self.path=path
-      logging.debug('Builder :: scan :: %s' %self.path)
+      logger.debug('Builder :: scan :: %s' %self.path)
       self.parseByNames(path)    
       #for item in os.listdir(self.path):
       #  if os.path.isdir(os.path.join(self.path,item)):
-      #    logging.info('Builder :: scan :: found folder : %s' %item)
+      #    logger.info('Builder :: scan :: found folder : %s' %item)
       #    self.parseFolder(os.path.join(self.path,item))
         #else: 
           #print 'found file : %s' %os.path.basename(path)      
           #pass
     else:
-      logging.error('Builder :: scan :: path does not exist : %s' %path)
+      logger.error('Builder :: scan :: path does not exist : %s' %path)
     return self.pages
   
   
@@ -358,13 +384,13 @@ class Builder(object):
     if not os.path.exists(self.outfolder):
       os.makedirs(self.outfolder)  
     if buildpath != srcpath:  
-      logging.debug('Builder :: write content files into :: %s' %self.outfolder)
+      logger.debug('Builder :: write content files into :: %s' %self.outfolder)
       for page in self.pages['pagelist']:
         for item in self.pages[page]:
           try:
             shutil.copy(item,os.path.join(self.outfolder,os.path.basename(item))) 
           except:
-            logging.warning('cannot copy %s to %s' %(item,os.path.join(self.outfolder,os.path.basename(item))))    
+            logger.warning('cannot copy %s to %s' %(item,os.path.join(self.outfolder,os.path.basename(item))))    
           if self.layout == None:
             open(os.path.join(self.outfolder,'layout.tpl'),'w').write(tpl_page)  
           else:
@@ -373,16 +399,16 @@ class Builder(object):
       cfg=os.path.basename(self.path)+'.pimouss'
     else:
       cfg='.pimouss'
-    logging.debug('Builder :: write content files into :: %s' %self.outfolder)
+    logger.debug('Builder :: write content files into :: %s' %self.outfolder)
     open(cfg,'w').write(str(self.pages))    #self.cfg.write()
       
     '''  
     if len(self.pages['template'])== 0:
-      logging.debug('Builder :: write :: no template found use default one...')
+      logger.debug('Builder :: write :: no template found use default one...')
     elif len(self.pages['template'])== 1:
-      logging.debug('Builder :: write :: single template found : %s' %self.pages['template'][0])
+      logger.debug('Builder :: write :: single template found : %s' %self.pages['template'][0])
     else:
-      logging.debug('Builder :: write :: more than one tamplate found : %s' %self.pages['template'])'''
+      logger.debug('Builder :: write :: more than one tamplate found : %s' %self.pages['template'])'''
 
 
 
@@ -399,7 +425,7 @@ class Generator(object):
     
   def scan(self,path): #read_config(self,config_filepath)
     self.pages=Builder().scan(path) #no!
-    print self.pages
+    #print self.pages
     self.layout=self.pages['layout']
 
   def chckpages(self):
@@ -411,7 +437,7 @@ class Generator(object):
       if key in minimalPagesKeys:
         result=True
       if key not in minimalPagesKeys:
-        logging.debug('Pimouss :: chckpages :: undefined keys: %s' %key)
+        logger.debug('Pimouss :: chckpages :: undefined keys: %s' %key)
     return result
     
   def process(self,path,outpath=None,pagelist=None): #outname...
@@ -419,21 +445,21 @@ class Generator(object):
     if pagelist==None:
       self.scan(path) #get config...
     if outpath == None:
-      logging.warning('Pimouss :: Generator :: no output folder specified, using "_www" folder')          
+      logger.warning('Pimouss :: Generator :: no output folder specified, using "_www" folder')          
       self.outpath=os.path.join(path,'_www')
     else:
       self.outpath=outpath
     if not os.path.exists(self.outpath):
-      logging.info('Pimouss :: Generator :: creating : %s' %(self.outpath))      
+      logger.info('Pimouss :: Generator :: creating : %s' %(self.outpath))      
       os.makedirs(self.outpath)
     if self.chckpages()== False:
-      logging.error('Pimouss :: process :: chckpages error')
+      logger.error('Pimouss :: process :: chckpages error')
       return
     if self.pages['pagelist']==None:
-      logging.error('Pimouss :: process :: self.pages[%s]==None' %('pagelist'))
+      logger.error('Pimouss :: process :: self.pages[%s]==None' %('pagelist'))
       return 2
     for page in self.pages['pagelist']:
-      logging.info('Pimouss ::  Generator ::  writing %s' %(page+'.html') )
+      logger.info('Pimouss ::  Generator ::  writing %s' %(page+'.html') )
       if self.layout != None:
         page_tpl=open(self.layout).read()
       else:
