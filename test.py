@@ -18,11 +18,11 @@ cmdlines    =[('cmd.md','python pimouss/pimouss.py -h','')]
 cmd_init    =[('cmd.init.md','python pimouss/pimouss.py init -h',''),
               ('cmd.init.md','python pimouss/pimouss.py -d init doc','init doc folder')]
 cmd_build   =[('cmd.build.md','python pimouss/pimouss.py build -h',''),
-              ('cmd.build.md','python pimouss/pimouss.py -d build doc','build doc folder')]
+              ('cmd.build.md','python pimouss/pimouss.py -d build -of _www doc','get all markdown file. build doc folder')]
 cmd_generate=[('cmd.generate.md','python pimouss/pimouss.py generate -h',''),
-              ('cmd.generate.md','python pimouss/pimouss.py -d generate doc','generate html for doc folder')]
+              ('cmd.generate.md','python pimouss/pimouss.py -d generate -of doc/_www doc','generate html for doc folder')]
 cmd_make    =[('cmd.make.md','python pimouss/pimouss.py make -h',''),
-              ('cmd.make.md','python pimouss/pimouss.py -d make doc','build & generate doc folder')]
+              ('cmd.make.md','python pimouss/pimouss.py -d make -of doc/_www doc ','build & generate doc folder')]
 
 def generator_cmdlines():    
   cmd_lines=cmdlines+cmd_init+cmd_build+cmd_generate+cmd_make  
@@ -154,7 +154,8 @@ class BuildTests(unittest.TestCase):
     """ build tests  """
     cmd=['python setup.py clean',
         'python setup.py check',
-        'python setup.py sdist'] #bdist  
+        'python setup.py sdist',
+        'python setup.py clean'] #bdist  
     error=0
     for item in cmd:    
       error+=subprocess.call(shlex.split(item))
@@ -163,7 +164,7 @@ class BuildTests(unittest.TestCase):
       self.build_win()
   
   def build_win(self):
-    errors=subprocess.call('python setup.py py2exe',shell=True)
+    errors=subprocess.call(shlex.split('python setup.py py2exe'))
     #errors+=subprocess.call('python setup.py bdist win32',shell=True)
     self.assertEqual(errors,0)
 

@@ -34,14 +34,11 @@ import errno
 import sys
 
 import logging
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s::%(name)s::%(levelname)s::%(message)s')
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s::%(levelname)s::%(name)s::%(message)s')
 logger=logger=logging.getLogger('pimouss')
 
-#__debug_level__=DEBUG
-#logging.basicConfig(level=logging.getattr(__debug_level__))
 
-#import threading
-from external import markdown2
+import external.markdown2 as markdown2
 
 #very basic one file approch template
 tpl_page='''.
@@ -575,10 +572,16 @@ def _make(args):
 def _gui(args):
   error=0
   try:
-    import gui
-    gui.main()
+    import pimouss
+    pimouss.gui.main()
   except:
-    error=-1
+    try:
+      logger.warning('can not find pimouss.gui')
+      import gui
+      gui.main()
+    except:  
+      logger.warning('neither gui')
+      error=-1
   return error
 
 def cli():
@@ -661,10 +664,7 @@ def cli():
   logger.info('elapsed time : %s' %elapsed)
   return error
 
-
-
 if __name__ == '__main__':
-  #pimoussCli()  
   cli()  
 
     

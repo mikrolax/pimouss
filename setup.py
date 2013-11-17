@@ -3,7 +3,12 @@
 
 import glob
 import os
-from distutils.core import setup
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
 import pimouss.pimouss as pimouss
 
 try:
@@ -25,10 +30,17 @@ setup(name='pimouss',
       license=pimouss.__license__,
       url='http://mikrolax.github.com/pimouss',
 
+      package_dir={'pimouss': 'pimouss'},
       packages=['pimouss','pimouss.external','pimouss.desktop'],
       #py_modules=['pimouss'], 
-      scripts=['pimouss/pimouss.py'], # change name and add pimouss.py too
-      
+      #scripts=['pimouss/pimouss.py'], # change name and add pimouss.py too
+
+      entry_points={
+          'console_scripts': [
+              'pimouss-gui = pimouss.gui:main',
+              'pimouss = pimouss.pimouss:cli',
+          ]
+      },      
       package_data={'pimouss.desktop': ['static/*.png'],
                     'pimouss': ['static/img/*.png','static/js/*.js','static/css/*.css','static/*.html'],                  
                   },
