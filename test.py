@@ -6,7 +6,62 @@ import codecs
 import unittest
 import subprocess
 import sys
+import shlex
+try:
+    import cStringIO
+    StringIO = cStringIO
+except ImportError:
+    import StringIO
 
+#command line generator
+cmdlines    =[('cmd.md','python pimouss/pimouss.py -h','')]
+cmd_init    =[('cmd.init.md','python pimouss/pimouss.py init -h',''),
+              ('cmd.init.md','python pimouss/pimouss.py -d init doc','init doc folder')]
+cmd_build   =[('cmd.build.md','python pimouss/pimouss.py build -h',''),
+              ('cmd.build.md','python pimouss/pimouss.py -d build doc','build doc folder')]
+cmd_generate=[('cmd.generate.md','python pimouss/pimouss.py generate -h',''),
+              ('cmd.generate.md','python pimouss/pimouss.py -d generate doc','generate html for doc folder')]
+cmd_make    =[('cmd.make.md','python pimouss/pimouss.py make -h',''),
+              ('cmd.make.md','python pimouss/pimouss.py -d make doc','build & generate doc folder')]
+
+def generator_cmdlines():    
+  cmd_lines=cmdlines+cmd_init+cmd_build+cmd_generate+cmd_make  
+  for cmd in cmd_lines:
+    yield cmd
+  
+class CliTests(unittest.TestCase):  #CmdDocBuilder
+  """ Test pimouss command line interface """
+  def setUp(self):
+    pass
+    
+  def test_doc(self):
+    docpath='doc'
+    if not os.path.exists(docpath):
+      os.makedirs(docpath)  
+    for filename,cmd,description in generator_cmdlines():
+      with open(os.path.join(docpath,filename),'a') as log: #as option?
+        print 'exec: %s' %cmd
+        log.write('## Command\n')
+        log.write('- - -\n\n')
+        log.write('        %s\n' %cmd)
+        log.write('\n')
+        if description !='':
+          log.write('### Description\n\n')
+          log.write('        %s\n' %description)
+          log.write('\n')
+        log.write('### Output\n\n')
+        args=shlex.split(cmd)
+        output,error = subprocess.Popen(args,stdout = subprocess.PIPE, stderr= subprocess.PIPE).communicate()
+        for line in StringIO.StringIO(error).readlines():
+          log.write('        %s  \n' %line.rstrip())
+        for line in StringIO.StringIO(output).readlines():
+          log.write('        %s  \n' %line.rstrip())
+        log.write('\n\n')  
+    
+  def tearDown(self):
+    error=subprocess.call('python pimouss/pimouss.py make -of doc/_html/ doc',shell=True)
+    self.assertEqual(error,0)
+  
 def generate_data(folder,datas):
   if not os.path.exists(folder):
     try:
@@ -27,91 +82,116 @@ def generate_data(folder,datas):
         dest=os.path.relpath(src,static_file)
         print '%s -> %s' %(src,dest)
         #os.copy(src,dest)
-    
-def build(inpath,outpath=None):
+
+def build(inpath,outpath=None): #class test
   print 'pimoussify (as python module) %s' %(inpath)
   from pimouss.pimouss import Pimouss
   pims=Pimouss()
   pims.process(inpath,outpath=outpath)
-  
-def build_cli(inpath,outpath=None):
-  print 'pimoussify (via cmd line) %s' %(inpath)
-  cmd_line='python %s' %os.path.join('pimouss','pimouss.py')
-  if outpath!=None:
-    cmd_line+=' -g %s' %outpath  
-  cmd_line+=' %s' %inpath
-  #print 'CLI : %s' %cmd_line  
-  result=subprocess.call(cmd_line,shell=True)
-  return result
-  
-  
-class PimoussTests(unittest.TestCase):  
-  """ Test both pimouss as a module and via command-line interface """
 
-  def tst(self,inpath,datas=None,outpath=None):
-    if datas!=None: 
-      generate_data(inpath,datas)
-    #build(inpath,outpath)
-    self.tst_module(inpath,outpath=outpath)
-    self.tst_cli(inpath,outpath=outpath)
-  
-  def tst_module(self,inpath,outpath=None):
-    """ test pimouss as a module """
-    res=build(inpath,outpath)
-    #self.assertEqual(res,0)
-  
-  def tst_cli(self,inpath,outpath=None):
-    """ test pimouss command-line interface """
-    res=build_cli(inpath,outpath) 
-    self.assertEqual(res,0)
-  
-  
-class Test(PimoussTests):
-  def test_example_foto(self):
-    """ build example/foto """
-    from tests.example_foto  import datas as testdatas
-    inpath=os.path.join(os.path.join('example','foto'))
-    outpath=os.path.join(os.path.join('example','_www'))
-    self.tst(inpath,datas=testdatas,outpath=outpath)
+class ModuleTests(unittest.TestCase):  
+  """ Test both pimouss as a module/class """
+  def setUp(self):
+    #generate data
+    self.inpath=[]
+    self.path_foto=os.path.join('example','foto')
+    self.inpath.append(self.path_foto)
+    from tests.example_foto  import datas as fotos
+    generate_data(self.path_foto,fotos)
     
-  def test_example_website(self):
-    """ build example/website """
-    from tests.example_website  import datas as testdatas
-    inpath=os.path.join(os.path.join('example','website'))
-    outpath=os.path.join(os.path.join('example','_www','website'))
-    self.tst(inpath,datas=testdatas,outpath=outpath)
-      
-  def test_setup_sdist(self):
-    """ source distribution packing test. Depending on platform, try to build binaries.  """  
-    subprocess.call('python setup.py sdist',shell=True)
+    self.path_website=os.path.join('example','website')
+    self.inpath.append(self.path_website)
+    from tests.example_website  import datas as webs
+    generate_data(self.path_website,webs)
+    
+  def test_example(self):
+    for path in self.inpath:
+      build(path,os.path.join(path,'_www'))
+    build(self.path_foto,os.path.join('doc','_html','example_foto'))
+    build(self.path_website,os.path.join('doc','_html','example_website'))
+    
+  def tearDown(self):
+    """ write doc """
+    doc=open(os.path.join('doc','example.md'),'w')
+    doc.write('Example  \n')
+    doc.close()
+    doc=open(os.path.join('doc','example.foto.md'),'w')
+    doc.write('### markdown file list  \n- - -  \n')
+    for f in os.listdir(self.path_foto):
+      if os.path.isfile(os.path.join(self.path_foto,f)):
+        if os.path.splitext(f)[1]=='.md':
+          doc.write('* file:%s  \n\n' %os.path.join(self.path_foto,f))
+          lines=open(os.path.join(self.path_foto,f),'r').readlines()
+          for line in lines:
+            doc.write('        %s  \n' %line.rstrip())
+          doc.write('\n')  
+    doc.close()
+    doc=open(os.path.join('doc','example.website.md'),'w')
+    doc.write('### markdown file list  \n- - -  \n')
+    #path=self.path_website
+    #self._writedoc(path)
+    for f in os.listdir(self.path_website):
+      if os.path.isfile(os.path.join(self.path_website,f)):
+        if os.path.splitext(f)[1]=='.md':
+          doc.write('* file:%s  \n\n' %os.path.join(self.path_website,f))
+          lines=open(os.path.join(self.path_website,f),'r').readlines()
+          for line in lines:
+            doc.write('        %s  \n' %line.rstrip())
+          doc.write('\n')
+    doc.close()
+    
+class InstallTests(unittest.TestCase):  
+  """ install tests """
+  def test_build(self):
+    """ install tests  """  
+    #must be run as sudo...
+    error=subprocess.call('python setup.py install',shell=True)
+    self.assertEqual(error,0)
+     
+class BuildTests(unittest.TestCase):  
+  """ build tests """
+  def test_install(self):
+    """ build tests  """
+    cmd=['python setup.py clean',
+        'python setup.py check',
+        'python setup.py sdist'] #bdist  
+    error=0
+    for item in cmd:    
+      error+=subprocess.call(shlex.split(item))
+    self.assertEqual(error,0)
     if sys.platform == 'win32':
-      self.setup_py2exe()
+      self.build_win()
   
-  def setup_py2exe(self):
-    subprocess.call('python setup.py py2exe',shell=True)
+  def build_win(self):
+    errors=subprocess.call('python setup.py py2exe',shell=True)
+    #errors+=subprocess.call('python setup.py bdist win32',shell=True)
+    self.assertEqual(errors,0)
 
-
-
+def suite():
+  suite = unittest.TestLoader().loadTestsFromTestCase(BuildTests)
+  #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(InstallTests))
+  suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ModuleTests))
+  suite.addTest(unittest.TestLoader().loadTestsFromTestCase(CliTests))
+  return suite
+  
 def clean():
   import shutil
   build=os.path.join('build')
-  example=os.path.join('example')
   if os.path.exists(build):
-    print 'remove build folder'
+    print 'remove build folder...'
     shutil.rmtree(build)
+  example=os.path.join('example')
   if os.path.exists(example):
-    print 'remove example folder'
+    print 'remove example folder...'
     shutil.rmtree(example)
+  doc=os.path.join('doc')
+  if os.path.exists(doc):
+    print 'remove doc folder...'
+    shutil.rmtree(doc)
 
-def suite():
-  suite = unittest.TestLoader().loadTestsFromTestCase(Test)
-  return suite
-  
 def run():
-  test_suite = unittest.TestSuite()
   tests=suite()
-  test_suite.addTest(tests)
-  unittest.TextTestRunner(verbosity = 2).run(test_suite)
+  unittest.TextTestRunner(verbosity = 2).run(tests)
 
 if __name__ == '__main__':
   clean()

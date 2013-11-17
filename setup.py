@@ -27,7 +27,7 @@ setup(name='pimouss',
 
       packages=['pimouss','pimouss.external','pimouss.desktop'],
       #py_modules=['pimouss'], 
-      scripts=['igloo.py'], # change name and add pimouss.py too
+      scripts=['pimouss/pimouss.py'], # change name and add pimouss.py too
       
       package_data={'pimouss.desktop': ['static/*.png'],
                     'pimouss': ['static/img/*.png','static/js/*.js','static/css/*.css','static/*.html'],                  

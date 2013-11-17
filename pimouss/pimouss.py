@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" mini file-based static website/html pages generator """
+__description__=""" mini file-based static website/html pages generator """
 
 __version__='0.1.0-beta'
 
@@ -96,7 +96,7 @@ def make_tabs(snippet,names): #list of HTML snippet... Should add options...
   template=string.Template(tpl)  
   html=template.substitute(links=links,tabs=tabs)
   return html
-  
+
 def _we_are_frozen():
   return hasattr(sys, "frozen")
 
@@ -105,8 +105,7 @@ def _module_path():
     return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding( )))
   else:
     return os.path.dirname(os.path.abspath(__file__))
-    
-
+     
 def generate_page(template,articles,pagename='',title=None,style=None): # don't use title now...
   if title == None:
     title='Pimouss'
@@ -125,7 +124,6 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
       article_tpl=tpl_article
     logger.debug('generate_page()::markdown process on article: %s',os.path.basename(article))        
     html_article=md2html(article_tpl,article)
-
     if len(articles)>1:  
       if len(res)==2 and res[0] == pagename:
         logger.debug('generate_page()::adding html for %s' %(os.path.basename(article)))      
@@ -134,7 +132,6 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
         tabs.append(html_article)
         tabsnames.append(res[1])
     idx+=1  
-
   if len(articles)>1:
     if style=='raw':
       logger.debug('generate_page using raw style')      
@@ -148,13 +145,10 @@ def generate_page(template,articles,pagename='',title=None,style=None): # don't 
       html+=tmp.decode('utf-8')
   else:    
     html+=html_article #.encode('utf-8') 
-
   page=string.Template(template) 
   #html_page=page.substitute(title=title,content=html.encode('utf-8'))
   html_page=page.substitute(content=html.encode('utf-8'))
   return html_page
-  
-  
   
 def md2html(template,filepath):
   """  write html snippet based on template and file """
@@ -174,7 +168,6 @@ def md2html(template,filepath):
         content=codecs.open(filepath,'r','utf-8').read()
       except:
         logger.error('invalid file %s ' %filepath)
-        
   #  print 'error processing markdown. Read raw file...'  
   html=''
   try:
@@ -215,13 +208,11 @@ class Pimouss(object):
     else:
       #modulename='pimouss.plugin_'+plugin
       modulename='plugin_'+plugin
-
       module = __import__(modulename,fromlist=['Builder','Generator'])
       class_ = getattr(module, 'Builder')
       self.builder=class_()
       class_ = getattr(module, 'Generator')
       self.generator=class_()
-      
       self.builder.layout=self.layout
       self.generator.layout=self.layout
       #print  self.builder
@@ -375,9 +366,7 @@ class Builder(object):
           #pass
     else:
       logger.error('Builder :: scan :: path does not exist : %s' %path)
-    return self.pages
-  
-  
+    return self.pages  
   
   def write(self,srcpath,buildpath):
     self.outfolder=buildpath
@@ -396,9 +385,9 @@ class Builder(object):
           else:
             if not os.path.exists(os.path.join(self.outfolder,'layout.tpl')):
               shutil.copy(self.layout,os.path.join(self.outfolder,'layout.tpl'))   #use basename? 
-      cfg=os.path.basename(self.path)+'.pimouss'
+      cfg=os.path.basename(self.path)+'.pims'
     else:
-      cfg='.pimouss'
+      cfg='.pims'
     logger.debug('Builder :: write content files into :: %s' %self.outfolder)
     open(cfg,'w').write(str(self.pages))    #self.cfg.write()
       
@@ -409,9 +398,6 @@ class Builder(object):
       logger.debug('Builder :: write :: single template found : %s' %self.pages['template'][0])
     else:
       logger.debug('Builder :: write :: more than one tamplate found : %s' %self.pages['template'])'''
-
-
-
 
   
 class Generator(object):
@@ -472,8 +458,8 @@ class Generator(object):
     copyfiles(path,self.outpath)
 
 '''
-class PimouShell(cmd.Cmd):
-  """Simple command processor"""  
+class iCmd(cmd.Cmd):
+  """Simple interactive command processor"""  
   def __init__(self):
     cmd.Cmd.__init__(self)
     self.prompt = 'pimouss > '
@@ -502,8 +488,6 @@ def pimoussProcess():
   except:
     raise  
 
-
-
 class PimoussThread(threading.Thread): 
   """ launch Pimouss for a folder in a thread """  
   def __init__(self,folder_path): #add optons
@@ -513,75 +497,6 @@ class PimoussThread(threading.Thread):
   def run(self):
     Pimouss()
 '''    
-    
-    
-def pimoussCli():
-  try:
-    import argparse
-  except:
-    import external.argparse  as argparse  
-  parser = argparse.ArgumentParser(description='pimouss v.%s:  static website generator' %__version__,epilog='Copyright Sebastien Stang') #add version? 
-  #parser.add_argument("-v", "--version",action='store_true',default=False,help="display current version")
-  parser.add_argument("-i", "--interactive",type=bool,default=False,help="Simulate an interactive shell")
-  parser.add_argument("-p", "--plugin",type=str,default=None,help="use plugin name")
-  parser.add_argument("-r", "--recursive", action="store_true",help="recursively look for markdown file")
-  parser.add_argument("-b", "--build_path",type=str,default=None,help="build path. Where it write config")
-  parser.add_argument("-g", "--generate_path",type=str,default=None,help="generate path. Default to folder '_www' of input folder")
-  parser.add_argument("input_path",type=str,default='',help="input folder (content).")
-  args = parser.parse_args()
-  
-  if not os.path.exists(args.input_path):
-    print 'input path does not exist... Aborting.'
-    return 1
-  
-  if not os.path.isdir(args.input_path):  
-    print 'input path is not a folder... Aborting.'
-    return 1
-  
-    
-  pimouss=Pimouss()
-  print ''
-  print '    Pimouss v.%s' %__version__
-  print ''
-  print '  Available plugin : '
-  for plugin in pimouss.scan_plugin():
-    print '    - %s  ' %plugin 
-  print ''
-  print '  Processing folder : %s' %args.input_path
-  print '   - build_path : %s' %args.build_path  
-  print '   - generate_path : %s' %args.generate_path
-  #print '*   - plugin : %s' %args.plugin
-  print ''
-  if args.build_path!=None:
-    build_path=args.build_path
-  else:
-    build_path=args.input_path
-  if args.generate_path!=None:
-    generate_path=args.generate_path
-  else:
-    generate_path=os.path.join(args.input_path,'_html')
-  if args.plugin!=None:
-    plugin=args.plugin
-  else:
-    plugin=None
-
-  pimouss=Pimouss(plugin=plugin)    
-  if args.recursive == True:
-    tmp_build_path=os.path.join(build_path,'_tmp')
-    for dirpath, dirnames, filenames in os.walk(args.input_path):
-      pimouss.build(dirpath,buildpath=tmp_build_path)
-    pimouss.generate(tmp_build_path,outpath=generate_path) #remove tmp file?
-  else:
-    pimouss.process(args.input_path,buildpath=build_path,outpath=generate_path) 
-  
-  
-'''  
-def test():    
-  import shlex
-  for item in os.listdir():
-    args='python pimouss item'
-    subprocess.call(shlex(args))
-'''
 
 #to avoid create new plugin from scratch ??
 default_plugin='''
@@ -593,22 +508,163 @@ import os
 #overide Builder class if needed
 class Builder(iglou.Builder):
   def __init__(self):
-    iglou.Builder.__init__(self)
+    pimouss.Builder.__init__(self)
 
 #overide Generator class if needed
 class Generator(iglou.Generator):
   def __init__(self):
-    iglou.Generator.__init__(self)   
+    pimouss.Generator.__init__(self)   
 '''
 
-'''
-def createPlugin(plugin_name):
-  with open() as fp: #use module path
-    fp.write()
-'''
+# command line interface
+def _init(args):
+  if not os.path.exists(args.inpath):
+    logging.error('input path does not exist... Aborting.')
+    return 1  
+  if not os.path.isdir(args.inpath):  
+    logging.error('input path is not a folder... Aborting.')
+    return 1
+  error=0
+  pims=Pimouss(plugin=args.plugin)    
+  #pims.init()    
+  #if args.recursive == True:
+  #  tmp_build_path=os.path.join(build_path,'_tmp')
+  #  for dirpath, dirnames, filenames in os.walk(args.input_path):
+  #    pimouss.build(dirpath,buildpath=tmp_build_path)
+  #  pimouss.generate(tmp_build_path,outpath=generate_path) #remove tmp file?
+  #else:
+  #  pimouss.process(args.input_path,buildpath=build_path,outpath=generate_path)   
+  return error
+
+def _build(args):
+  if not os.path.exists(args.inpath):
+    logging.error('input path does not exist... Aborting.')
+    return 1  
+  if not os.path.isdir(args.inpath):  
+    logging.error('input path is not a folder... Aborting.')
+    return 1
+  error=0
+  pims=Pimouss(plugin=args.plugin)    
+  pims.build(args.inpath,buildpath=args.output_path)
+  return error
+
+def _generate(args):
+  if not os.path.exists(args.inpath):
+    logging.error('input path does not exist... Aborting.')
+    return 1  
+  if not os.path.isdir(args.inpath):  
+    logging.error('input path is not a folder... Aborting.')
+    return 1
+  error=0
+  pims=Pimouss(plugin=args.plugin)    
+  pims.generate(args.inpath,outpath=args.output_path) 
+  return error
+
+def _make(args):
+  if not os.path.exists(args.inpath):
+    logging.error('input path does not exist... Aborting.')
+    return 1  
+  if not os.path.isdir(args.inpath):  
+    logging.error('input path is not a folder... Aborting.')
+    return 1
+  error=0
+  pims=Pimouss(plugin=args.plugin)    
+  pims.process(args.inpath,outpath=args.output_path)   
+  return error
+
+def _gui(args):
+  error=0
+  try:
+    import gui
+    gui.main()
+  except:
+    error=-1
+  return error
+
+def cli():
+  try:
+    import argparse
+  except:  
+    import external.argparse as argparse
+    
+  pims=Pimouss()
+  plugins=pims.scan_plugin()#static method?
+    
+  parser=argparse.ArgumentParser(version='%s' %__version__ ,
+                                   description='%s' %__description__,
+                                   epilog=' by %s' %(__author__))
+  paser_log=parser.add_mutually_exclusive_group()
+  paser_log.add_argument("-d", "--debug",action='store_true',default=False,
+                   help="verbose output logging")
+  paser_log.add_argument("-q", "--quiet",action='store_true',default=False,
+                   help="limit output logging to warning/error")
+  
+  subparsers = parser.add_subparsers(title="Available commands")
+
+  parser_gui=subparsers.add_parser("gui",help="launch Qt (PySide) desktop interface.")  
+  parser_gui.set_defaults(func=_gui)
+  
+  parser_init=subparsers.add_parser("init",help="init a pimouss project (write layout and static files)")  
+  parser_init.set_defaults(func=_init)
+  
+  parent_subparser = argparse.ArgumentParser(add_help=False)  
+  parent_subparser.add_argument("-tpl", "--layout_template",type=str,default=None,
+                   help="layout template file to use")
+  parent_subparser.add_argument("-s","--static_assets",type=str,default='static', # use pimouss.cfg
+                   help="path of assets/static files")
+  parent_subparser.add_argument("-of","--output_path",type=str,default='_html',#required=True,
+                           help="output folder path (default to _html)")
+  
+  parent_subparser.add_argument("--tabstyle",choices=('pills','pills-right'),default=None,
+                   help="layout template file to use") #only for generate?
+  
+  #parent_subparser.add_argument("--navstyle",choice=('static','static-invert'),default=None,
+  #                 help="navigation bar style") #only for generate?
+  #parent_subparser.add_argument("-p", "--plugin",choices=plugins,default=False,
+  #                        help="plugin to use.")
+
+  parser_build = subparsers.add_parser("build",parents=[parent_subparser],
+                                     help="path -> markdown")
+  parser_build.add_argument("-p", "--plugin",choices=plugins,default=None,
+                          help="plugin to use.")
+  parser_build.set_defaults(func=_build)
+  
+  parser_generate = subparsers.add_parser("generate",parents=[parent_subparser],
+                                     help="markdown -> html")
+  parser_generate.add_argument("-p", "--plugin",choices=plugins,default=None,
+                          help="plugin to use.")
+  parser_generate.set_defaults(func=_generate)
+  
+  parser_make = subparsers.add_parser("make",parents=[parent_subparser],
+                                     help="path -> html")
+  parser_make.add_argument("-p", "--plugin",choices=plugins,default=None,
+                          help="plugin to use.")
+  parser_make.set_defaults(func=_make) 
+  # add auto mode?
+
+  #parser_execute=subparsers.add_parser("execute",#parents=[parent_subparser],#parent parser??
+  #                                   help="Execute command contains in INFILE (one cmd per line)")
+  #parser_execute.set_defaults(func=_exec_from_file) 
+  
+  parser.add_argument("inpath",type=str,default='.',help="input path")
+  #parser.add_argument("---inpath",type=str,default='.',help="input path")
+  args=parser.parse_args()
+  import datetime
+  start=datetime.datetime.now()
+  FORMAT='  %(message)s  \n'
+  if args.quiet:
+    logger.setLevel(logging.WARNING)
+  if args.debug:
+    logger.setLevel(logging.DEBUG)
+  error=args.func(args)
+  elapsed=datetime.datetime.now()-start    
+  logger.info('elapsed time : %s' %elapsed)
+  return error
+
+
 
 if __name__ == '__main__':
-  pimoussCli()  
-    
+  #pimoussCli()  
+  cli()  
 
     
