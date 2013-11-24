@@ -22,7 +22,8 @@ cmd_build   =[('cmd.build.md','python pimouss/pimouss.py build -h',''),
 cmd_generate=[('cmd.generate.md','python pimouss/pimouss.py generate -h',''),
               ('cmd.generate.md','python pimouss/pimouss.py -d generate -of doc/_www doc','generate html for doc folder')]
 cmd_make    =[('cmd.make.md','python pimouss/pimouss.py make -h',''),
-              ('cmd.make.md','python pimouss/pimouss.py -d make -of doc/_www doc ','build & generate doc folder')]
+              ('cmd.make.md','python pimouss/pimouss.py -d make -of doc/_www doc ','build & generate doc folder'),
+              ('cmd.make.md','python pimouss/pimouss.py -d make -tstyle pills -of doc/_www2 doc ','build & generate doc folder,change tabs style/position')]
 
 def generator_cmdlines():    
   cmd_lines=cmdlines+cmd_init+cmd_build+cmd_generate+cmd_make  
@@ -185,16 +186,22 @@ def clean():
   if os.path.exists(example):
     print 'remove example folder...'
     shutil.rmtree(example)
-  doc=os.path.join('doc')
-  if os.path.exists(doc):
-    print 'remove doc folder...'
-    shutil.rmtree(doc)
+  #doc=os.path.join('doc')
+  #if os.path.exists(doc):
+  #  print 'remove doc folder...'
+  #  shutil.rmtree(doc)
 
 def run():
   tests=suite()
-  unittest.TextTestRunner(verbosity = 2).run(tests)
-
+  res=unittest.TextTestRunner(verbosity = 2).run(tests)
+  return res
+  
 if __name__ == '__main__':
+  old=os.getcwd()
+  os.chdir(os.path.dirname(os.path.abspath(__file__))) 
   clean()
-  run()
-
+  res=run()
+  os.chdir(old)
+  sys.exit(len(res.errors)+len(res.failures))
+  
+  
